@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+
+    <ndll name="inputios" build-file-path="project/Build.xml" bin-path="ndll" />
+
+    <platform-config>
+    	<ios>
+    		<xcode-link-arg value="-all_load" />
+    	</ios>
+
+    </platform-config>
+
+</library>

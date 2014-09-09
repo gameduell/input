@@ -1,0 +1,4 @@
+<xml>
+		<compilerflag value="-I${haxelib:input}/backends/input_ios/project/include" />
+</xml>
+

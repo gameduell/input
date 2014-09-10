@@ -3,13 +3,13 @@ package input;
 import types.MouseEvent;
 
 import msignal.Signal;
-
+import types.Vector2;
 class Mouse
 {
 	public var state (default, null) : Map<MouseButton, MouseButtonState>;
 	public var onButtonEvent(default, null) : Signal1<MouseButtonEvent>;
 	public var onMovementEvent(default, null) : Signal1<MouseMovementEvent>;
-
+	public var screenPosition :Vector2;
 	/// called from within the package, should not be created from the outside
 	private function new()
 	{
@@ -20,5 +20,6 @@ class Mouse
 		];
 		onButtonEvent = new Signal1();
 		onMovementEvent = new Signal1();
+		screenPosition = new Vector2();
 	}
 }

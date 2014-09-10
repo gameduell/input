@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library>
+    <platform-config>
+    	<html5>
+			<js-source path="external-libs/js/jquery-1.11.1.min.js" applyTemplate="false"/>
+    	</html5>
+
+    </platform-config>
 
 </library>

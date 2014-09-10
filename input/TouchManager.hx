@@ -12,7 +12,7 @@ extern class TouchManager
 
 	private function new();
 
-	static public function instance() : MouseManager;
+	static public function instance() : TouchManager;
 
-	public static function initialize(finishedCallback : Void->Void) : Void
+	public static function initialize(finishedCallback : Void->Void) : Void;
 }

@@ -58,7 +58,6 @@ class MouseManager
 		mouseInstance.jquery.ready(function(e):Void {
 				
 				mouseInstance.jquery.click(function(e:Dynamic){
-					trace("Clicked");
 					mouseInstance.mainMouse.screenPosition.x = e.pageX;
 					mouseInstance.mainMouse.screenPosition.y = e.pageY;
 					mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});

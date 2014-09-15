@@ -6,7 +6,7 @@ import msignal.Signal;
 
 import cpp.Lib;
 
-import types.Touch;
+import input.Touch;
 
 @:buildXml('
     <files id="haxe">
@@ -15,8 +15,8 @@ import types.Touch;
 ')
 @:headerCode("
     #include <input_ios/NativeTouch.h>
-    #include <types/Touch.h>
-    #include <types/TouchState.h>
+    #include <input/Touch.h>
+    #include <input/TouchState.h>
 ")
 class TouchManager
 {
@@ -27,7 +27,7 @@ class TouchManager
 
     private var touchPool : Array<Touch>;
     private var touchesToSend : Array<Touch>;
-    private var touchPoolSize : Int = 40; /// well, doesn't cost anything
+    private static inline var touchPoolSize : Int = 40; /// well, doesn't cost anything
 
 	private function new()
 	{
@@ -76,19 +76,19 @@ class TouchManager
 
         switch(nativeTouch->state) {
             case (int)0: {
-                touch->state = ::types::TouchState_obj::TouchStateBegan;
+                touch->state = ::input::TouchState_obj::TouchStateBegan;
             }
             ;break;
             case (int)1: {
-                touch->state = ::types::TouchState_obj::TouchStateMoved;
+                touch->state = ::input::TouchState_obj::TouchStateMoved;
             }
             ;break;
             case (int)2: {
-                touch->state = ::types::TouchState_obj::TouchStateStationary;
+                touch->state = ::input::TouchState_obj::TouchStateStationary;
             }
             ;break;
             case (int)3: {
-                touch->state = ::types::TouchState_obj::TouchStateEnded;
+                touch->state = ::input::TouchState_obj::TouchStateEnded;
             }
             ;break;
         }

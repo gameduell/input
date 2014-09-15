@@ -4,7 +4,7 @@ import input.Mouse;
 
 import msignal.Signal;
 
-import types.Touch;
+import input.Touch;
 
 extern class TouchManager
 {

@@ -66,8 +66,8 @@ extern void callHaxeOnTouchesCallback(value touchList);
 
         input_ios::NativeTouch *nativeTouch = (input_ios::NativeTouch *)val_data(nativeTouchValue);
         CGPoint locationInView = [touch locationInView:self.view];
-        nativeTouch->x = locationInView.x;
-        nativeTouch->y = locationInView.y;
+        nativeTouch->x = locationInView.x * [[UIScreen mainScreen] scale];
+        nativeTouch->y = locationInView.y * [[UIScreen mainScreen] scale];
         nativeTouch->timestamp = touch.timestamp;
 
         switch(touch.phase)

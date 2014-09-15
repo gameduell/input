@@ -4,11 +4,9 @@ import input.Mouse;
 
 import msignal.Signal;
 
-import types.Touch;
-
 import js.JQuery;
 import js.Browser;
-
+import input.Touch;
 class TouchManager
 {
 	public var onTouches (default, null) : Signal1<Array<Touch>>;

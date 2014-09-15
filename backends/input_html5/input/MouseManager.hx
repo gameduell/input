@@ -1,8 +1,5 @@
 package input;
 
-import types.MouseEvent;
-import types.Touch;
-
 import input.Mouse;
 
 import msignal.Signal;
@@ -10,7 +7,8 @@ import msignal.Signal;
 import js.JQuery;
 
 import js.Browser;
-
+import input.Mouse;
+import input.MouseEventData;
 @:access(input.Mouse)
 class MouseManager
 {

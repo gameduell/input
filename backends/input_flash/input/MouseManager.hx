@@ -1,8 +1,8 @@
 package input;
 
-import types.MouseEvent;
 
 import input.Mouse;
+import input.MouseEventData;
 
 import msignal.Signal;
 

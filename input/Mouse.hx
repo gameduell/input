@@ -10,7 +10,8 @@ class Mouse
 	public var state (default, null) : Map<MouseButton, MouseButtonState>;
 	public var onButtonEvent(default, null) : Signal1<MouseButtonEvent>;
 	public var onMovementEvent(default, null) : Signal1<MouseMovementEvent>;
-	public var screenPosition : Vector2;
+	public var screenPosition(get, null) : Vector2;
+	private var _screenPosition : Vector2;
 	/// called from within the package, should not be created from the outside
 	private function new()
 	{
@@ -21,6 +22,10 @@ class Mouse
 		];
 		onButtonEvent = new Signal1();
 		onMovementEvent = new Signal1();
-		screenPosition = new Vector2();
+		_screenPosition = new Vector2();
+	}
+	public function get_screenPosition() : Vector2
+	{
+	    return _screenPosition;
 	}
 }

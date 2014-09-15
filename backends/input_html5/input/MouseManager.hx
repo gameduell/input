@@ -19,8 +19,6 @@ class MouseManager
 	private var mainMouse : Mouse;
 	public var onTouches : Signal1<Array<Touch>>;
 	private var mouses : Map<String, Mouse>;
-	private var canvas : JQuery;
-	private var CANVAS_ID : String = "#duell-view";
 	private var jquery : JQuery;
 	private function new()
 	{
@@ -28,7 +26,6 @@ class MouseManager
 		mouses = new Map();
 		onTouches = new Signal1();
 		jquery = new JQuery(Browser.window);
-
 	}
 
 	public function getMainMouse() : Mouse
@@ -58,9 +55,11 @@ class MouseManager
 		mouseInstance.jquery.ready(function(e):Void {
 				
 				mouseInstance.jquery.click(function(e:Dynamic){
+					mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});
+				});
+				mouseInstance.jquery.mousemove(function(e) : Void {
 					mouseInstance.mainMouse.screenPosition.x = e.pageX;
 					mouseInstance.mainMouse.screenPosition.y = e.pageY;
-					mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});
 				});
 
 			finishedCallback();

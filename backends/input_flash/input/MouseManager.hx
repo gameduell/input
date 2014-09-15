@@ -13,12 +13,12 @@ class MouseManager
 {
 	private static var managerInstance : MouseManager;
 
-	private var mainMouse : Mouse;
+	private var mainMouse : FlashMouse;
 	private var mouses : Map<String, Mouse>;
 	private var stage:Stage = flash.Lib.current.stage;
 	private function new()
 	{
-		mainMouse = new Mouse();
+		mainMouse = new FlashMouse();
 		mouses = new Map();
 	}
 
@@ -45,10 +45,8 @@ class MouseManager
 	public static function initialize(finishedCallback : Void -> Void) : Void
 	{
 		managerInstance = new MouseManager();
+		
 		managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_DOWN, function(event : flash.events.MouseEvent){
-			trace("Stage Clicked");
-			managerInstance.mainMouse.screenPosition.x = managerInstance.stage.mouseX;
-			managerInstance.mainMouse.screenPosition.y = managerInstance.stage.mouseY;
 			managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});
 		});
 

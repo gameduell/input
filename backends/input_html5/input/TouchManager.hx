@@ -11,7 +11,7 @@ import js.Browser;
 
 class TouchManager
 {
-	public var onTouches : Signal1<Array<Touch>>;
+	public var onTouches (default, null) : Signal1<Array<Touch>>;
     private var touchPool : Array<Touch>;
     private var touchesToSend : Array<Touch>;
     private var touchPoolSize : Int = 40; 
@@ -31,7 +31,6 @@ class TouchManager
             touchPool.push(new Touch());
         }
         touchesToSend = [];
-
 	}
 
 	static public function instance() : TouchManager
@@ -41,7 +40,6 @@ class TouchManager
 
 	public static function initialize(finishedCallback : Void->Void) : Void
 	{
-		trace("Initialize touche");
 		touchInstance  = new TouchManager();
 		
 		///same as $(function(){}) in javascript
@@ -49,27 +47,23 @@ class TouchManager
 			
 			Browser.document.addEventListener('touchstart', function(e:Dynamic) {
 				    e.preventDefault();
-				    var touch = e.touches[0];
-				    touchInstance.parseTouchObjects(e.touches[0], TouchState.TouchStateBegan);
+				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateBegan);
 			}, false);
 
 			Browser.document.addEventListener('touchend', function(e:Dynamic) {
 				    e.preventDefault();
-				    var touch = e.touches[0];
-				    touchInstance.parseTouchObjects(e.touches[0], TouchState.TouchStateEnded);
+				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateEnded);
 
 			}, false);
 
 			Browser.document.addEventListener('touchmove', function(e:Dynamic) {
 				    e.preventDefault();
-				    var touch = e.touches[0];
-				    touchInstance.parseTouchObjects(e.touches[0], TouchState.TouchStateMoved);
+				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateMoved);
 			}, false);
 			
 			Browser.document.addEventListener('touchcancel', function(e:Dynamic) {
 				    e.preventDefault();
-				    var touch = e.touches[0];
-				    touchInstance.parseTouchObjects(e.touches[0], TouchState.TouchStateStationary);
+				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateStationary);
 				    
 			}, false);
 		
@@ -104,6 +98,6 @@ class TouchManager
 	    touch.y = nativeTouchDynamic.clientY;
 	    touch.id = nativeTouchDynamic.identifier;
 	    touch.state = state;
-	    touch.timestamp = 0.0;
+	    touch.timestamp = haxe.Timer.stamp();
 	}
 }

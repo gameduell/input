@@ -8,7 +8,7 @@ import types.Touch;
 
 extern class TouchManager
 {
-	public var onTouches : Signal1<Array<Touch>>;
+	public var onTouches(default, null) : Signal1<Array<Touch>>;
 
 	private function new();
 

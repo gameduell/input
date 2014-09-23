@@ -1,0 +1,4 @@
+<xml>
+		<compilerflag value="-I${haxelib:input}/backends/input_android/project/include" />
+</xml>
+

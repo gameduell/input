@@ -14,7 +14,6 @@ class Touch
     public var x(default, default) : Int;
     public var y(default, default) : Int;
     public var state(default, default) : TouchState;
-    public var timestamp(default, default) : Float;
 
     public function new() 
     {
@@ -22,6 +21,5 @@ class Touch
     	x = 0;
     	y = 0;
     	state = TouchStateBegan;
-    	timestamp = 0.0;
     };
 }

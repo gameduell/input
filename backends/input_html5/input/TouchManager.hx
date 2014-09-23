@@ -96,6 +96,5 @@ class TouchManager
 	    touch.y = nativeTouchDynamic.clientY;
 	    touch.id = nativeTouchDynamic.identifier;
 	    touch.state = state;
-	    touch.timestamp = haxe.Timer.stamp();
 	}
 }

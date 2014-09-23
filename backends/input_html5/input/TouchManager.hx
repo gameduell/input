@@ -61,7 +61,7 @@ class TouchManager
 			
 			Browser.document.addEventListener('touchcancel', function(e:Dynamic) {
 				    e.preventDefault();
-				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateEnded);
+				    touchInstance.parseTouchObjects(e.touches, TouchState.TouchStateCancelled);
 				    
 			}, false);
 		

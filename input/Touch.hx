@@ -6,6 +6,7 @@ enum TouchState
 	TouchStateMoved;
 	TouchStateStationary;
 	TouchStateEnded;
+    TouchStateCancelled;
 }
 
 class Touch

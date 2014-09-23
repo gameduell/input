@@ -84,7 +84,7 @@ extern void callHaxeOnTouchesCallback(value touchList);
                 nativeTouch->state = 3;
                 break;
             case(UITouchPhaseCancelled):
-                nativeTouch->state = 3;
+                nativeTouch->state = 4;
         }
         nativeTouch->id = convertPointerToUniqueInt(touch);
 

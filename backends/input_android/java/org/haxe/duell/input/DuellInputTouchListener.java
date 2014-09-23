@@ -21,7 +21,7 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 			final int indexOfAction = ev.getActionIndex();
 			boolean cancel = false;
 
-			///0 began, 1 moved, 2 stationary, 3 ended
+			///0 began, 1 moved, 2 stationary, 3 ended, 4 cancelled
 			switch (action & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
 					state = 0;
@@ -46,7 +46,7 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 			synchronized (touches) {
 				if (cancel) { /// cancel everything
 					for (DuellInputTouch touch : touches) {
-						touch.state = 3;
+						touch.state = 4;
 					}
 				} else {
 					for (int i = 0; i < ev.getPointerCount(); ++i) {
@@ -97,7 +97,7 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 
 				DuellInputNativeInterface.touchInfo(touch.id, touch.x, touch.y, touch.state);
 
-				if (touch.state == 3) {
+				if (touch.state == 3 || touch.state == 4) {
 					itr.remove();
 					DuellInputTouch.recycle(touch);
 				}

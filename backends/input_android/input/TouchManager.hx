@@ -96,6 +96,10 @@ class TouchManager
                 touch->state = ::input::TouchState_obj::TouchStateEnded;
             }
             ;break;
+            case (int)4: {
+                touch->state = ::input::TouchState_obj::TouchStateCancelled;
+            }
+            ;break;
         }
     ") 
     private static function setupWithNativeTouch(touch : Touch, nativeTouchDynamic : Dynamic) : Void {}

@@ -15,7 +15,7 @@ class NativeTouch
 		int x;
 		int y;
 		int id;
-		int state; ///0 began, 1 moved, 2 stationary, 3 ended
+		int state; ///0 began, 1 moved, 2 stationary, 3 ended, 4 cancelled
 
 	static value createHaxePointer();
 };

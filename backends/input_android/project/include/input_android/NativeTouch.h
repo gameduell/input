@@ -1,9 +1,9 @@
-#ifndef __INPUT_IOS_NATIVE_TOUCH__
-#define __INPUT_IOS_NATIVE_TOUCH__
+#ifndef __INPUT_ANDROID_NATIVE_TOUCH__
+#define __INPUT_ANDROID_NATIVE_TOUCH__
 
 #include <hx/CFFI.h>
 
-namespace input_ios
+namespace input_android
 {
 
 DECLARE_KIND(k_NativeTouch) 
@@ -22,4 +22,4 @@ class NativeTouch
 
 }
 
-#endif //__INPUT_IOS_NATIVE_TOUCH__
+#endif //__INPUT_ANDROID_NATIVE_TOUCH__

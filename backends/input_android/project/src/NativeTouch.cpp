@@ -1,16 +1,15 @@
-#include <input_ios/NativeTouch.h>
+#include <input_android/NativeTouch.h>
 #include <string>
 
 #include <hx/CFFI.h>
 
-class NativeTouch_Impl : public input_ios::NativeTouch
+class NativeTouch_Impl : public input_android::NativeTouch
 {
 	public:
 		static value createHaxePointer();
 
 		~NativeTouch_Impl();
 		NativeTouch_Impl();
-
 };
 
 NativeTouch_Impl::NativeTouch_Impl()
@@ -28,7 +27,7 @@ NativeTouch_Impl::~NativeTouch_Impl()
 
 DEFINE_KIND(k_NativeTouch) 
 
-value input_ios::NativeTouch::createHaxePointer()
+value input_android::NativeTouch::createHaxePointer()
 {
 	value v;
 	v = alloc_abstract(k_NativeTouch, new NativeTouch_Impl());

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+    <ndll name="inputandroid" build-file-path="project/Build.xml" bin-path="ndll" /> 
+
+    <duelllib name="hxjni" />
+
+
+    <platform-config>
+    	<android>
+    		<java-source name="DuellInputActivityExtension" path="java" />
+    		<activity-extension name="org.haxe.duell.input.DuellInputActivityExtension" />
+		</android>
+	</platform-config>
+</library>

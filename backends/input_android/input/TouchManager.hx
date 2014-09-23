@@ -6,15 +6,17 @@ import msignal.Signal;
 
 import cpp.Lib;
 
+import hxjni.JNI;
+
 import input.Touch;
 
 @:buildXml('
     <files id="haxe">
-        <include name="${haxelib:input}/backends/input_ios/native.xml" />
+        <include name="${haxelib:input}/backends/input_android/native.xml" />
     </files>
 ')
 @:headerCode("
-    #include <input_ios/NativeTouch.h>
+    #include <input_android/NativeTouch.h>
     #include <input/Touch.h>
     #include <input/TouchState.h>
 ")
@@ -23,7 +25,8 @@ class TouchManager
 	public var onTouches : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
-	static private var inputios_initialize = Lib.load ("inputios", "inputios_initialize", 1);
+	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 1);
+    static private var j_initialize = JNI.createStaticMethod("org/haxe/duell/input/DuellInputActivityExtension", "initialize", "()V");
 
     private var touchPool : Array<Touch>;
     private var touchesToSend : Array<Touch>;
@@ -40,9 +43,11 @@ class TouchManager
         }
         touchesToSend = [];
 
-        inputios_initialize(
+        inputandroid_initialize(
             newTouchesCallback
         );
+
+        j_initialize();
 	}
 
 	public function newTouchesCallback(touches : Array<Dynamic>)
@@ -62,13 +67,14 @@ class TouchManager
         for(i in 0...touches.length)
         {
             setupWithNativeTouch(touchesToSend[i], touches[i]);
+
         }
 
         onTouches.dispatch(touchesToSend);
     }
 
     @:functionCode("
-        input_ios::NativeTouch *nativeTouch = (input_ios::NativeTouch *)nativeTouchDynamic->__GetHandle();
+        input_android::NativeTouch *nativeTouch = (input_android::NativeTouch *)nativeTouchDynamic->__GetHandle();
         touch->x = nativeTouch->x;
         touch->y = nativeTouch->y;
         touch->id = nativeTouch->id;

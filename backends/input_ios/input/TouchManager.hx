@@ -45,58 +45,64 @@ class TouchManager
         );
 	}
 
-	public function newTouchesCallback(touches : Array<Dynamic>)
-    {
-        if (touches.length > touchesToSend.length)
-        {
-            for (i in touchesToSend.length...touches.length)
-            {
-                touchesToSend.push(touchPool[i]);
-            }
-        }
-        else if (touches.length < touchesToSend.length)
-        {
-            touchesToSend.splice(touches.length, touchesToSend.length - touches.length);
-        }
-
-        for(i in 0...touches.length)
-        {
-            setupWithNativeTouch(touchesToSend[i], touches[i]);
-        }
-
-        onTouches.dispatch(touchesToSend);
-    }
-
     @:functionCode("
-        input_ios::NativeTouch *nativeTouch = (input_ios::NativeTouch *)nativeTouchDynamic->__GetHandle();
-        touch->x = nativeTouch->x;
-        touch->y = nativeTouch->y;
-        touch->id = nativeTouch->id;
-
-        switch(nativeTouch->state) {
-            case (int)0: {
-                touch->state = ::input::TouchState_obj::TouchStateBegan;
+        NativeTouch *_touchList = (NativeTouch*)touchList->__GetHandle();
+        int _touchCount = *(int*)touchCount->__GetHandle();
+        if(_touchCount > this->touchesToSend->length)
+        {
+            int i = this->touchesToSend->length;
+            while(this->touchesToSend->length < _touchCount)
+            {
+                this->touchesToSend->push(this->touchPool->__get(i).StaticCast< ::input::Touch >());
+                i++;
             }
-            ;break;
-            case (int)1: {
-                touch->state = ::input::TouchState_obj::TouchStateMoved;
-            }
-            ;break;
-            case (int)2: {
-                touch->state = ::input::TouchState_obj::TouchStateStationary;
-            }
-            ;break;
-            case (int)3: {
-                touch->state = ::input::TouchState_obj::TouchStateEnded;
-            }
-            ;break;
-            case (int)4: {
-                touch->state = ::input::TouchState_obj::TouchStateCancelled;
-            }
-            ;break;
         }
+        else
+        {
+            if (_touchCount < this->touchesToSend->length)
+            {
+                this->touchesToSend->splice(_touchCount,(this->touchesToSend->length - _touchCount,true));
+            }
+        }
+
+        int i = 0;
+        while(i < _touchCount)
+        {
+            ::input::Touch touch = this->touchesToSend->__get(i).StaticCast< ::input::Touch >();
+
+            touch->x = _touchList[i].x;
+            touch->y = _touchList[i].y;
+            touch->id = _touchList[i].id;
+
+            switch(_touchList[i].state) {
+                case (int)0: {
+                    touch->state = ::input::TouchState_obj::TouchStateBegan;
+                }
+                ;break;
+                case (int)1: {
+                    touch->state = ::input::TouchState_obj::TouchStateMoved;
+                }
+                ;break;
+                case (int)2: {
+                    touch->state = ::input::TouchState_obj::TouchStateStationary;
+                }
+                ;break;
+                case (int)3: {
+                    touch->state = ::input::TouchState_obj::TouchStateEnded;
+                }
+                ;break;
+                case (int)4: {
+                    touch->state = ::input::TouchState_obj::TouchStateCancelled;
+                }
+                ;break;
+            }
+
+
+            i++;
+        }
+        this->onTouches->dispatch(this->touchesToSend);
     ") 
-    private static function setupWithNativeTouch(touch : Touch, nativeTouchDynamic : Dynamic) : Void {}
+	public function newTouchesCallback(touchCount : Dynamic, touchList : Array<Dynamic>) {}
 
 	static public inline function instance() : TouchManager
 	{

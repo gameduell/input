@@ -5,6 +5,6 @@
 
 @interface InputCapturer : NSObject
 
-+ (void)initializeCapturer;
++ (void) initializeCapturer;
 
 @end

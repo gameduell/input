@@ -10,7 +10,7 @@ value *__onTouchesCallback = NULL;
 
 static value inputios_initialize(value onTouchesCallback)
 {
-	val_check_function(onTouchesCallback, 1); // Is Func ?
+	val_check_function(onTouchesCallback, 2); // Is Func ?
 
 	if (__onTouchesCallback == NULL)
 	{
@@ -24,9 +24,9 @@ static value inputios_initialize(value onTouchesCallback)
 }
 DEFINE_PRIM (inputios_initialize, 1);
 
-void callHaxeOnTouchesCallback(value touchList)
+void callHaxeOnTouchesCallback(value touchCount, value touchList)
 {
-	val_call1(*__onTouchesCallback, touchList);
+	val_call2(*__onTouchesCallback, touchCount, touchList);
 }
 
 extern "C" int inputios_register_prims () { return 0; }

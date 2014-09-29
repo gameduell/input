@@ -4,23 +4,27 @@
 
 #import <objc/runtime.h>
 
+#include <hx/CFFI.h>
+
 #define TOUCH_LIST_POOL_SIZE 40
 
-static value touchListPool;
-static value touchListToSend;
+static NativeTouch *touchList;
+static int touchCount;
+
+DEFINE_KIND(k_TouchCount) 
+DEFINE_KIND(k_TouchList) 
+
+static value touchCountValue;
+static value touchListValue;
 
 @implementation UIViewController (CaptureTouches)
 
 - (void) initializeTouchCapturing
 {
-	touchListPool = alloc_array(TOUCH_LIST_POOL_SIZE);
+    touchList = new NativeTouch[TOUCH_LIST_POOL_SIZE];
 
-    for (int i = 0; i < TOUCH_LIST_POOL_SIZE; i++)
-    {
-        val_array_set_i(touchListPool, i, input_ios::NativeTouch::createHaxePointer());
-    }
-
-    touchListToSend = alloc_array(TOUCH_LIST_POOL_SIZE);
+    touchCountValue = alloc_abstract(k_TouchCount, &touchCount);
+    touchListValue = alloc_abstract(k_TouchList, touchList);
 }
 
 - (void)capturedTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -51,47 +55,41 @@ int convertPointerToUniqueInt(void *ptr)
     return hash;
 }
 
-extern void callHaxeOnTouchesCallback(value touchList);
+extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
 - (void) dispatchTouches:(NSSet *)touches
 {
-    NSUInteger touchCount = touches.count;
-
-    val_array_set_size(touchListToSend, touchCount);
+    touchCount = touches.count;
 
     int i = 0;
     for (UITouch *touch in touches)
     {
-        value nativeTouchValue = val_array_i(touchListPool, i);
-        val_array_set_i(touchListToSend, i, nativeTouchValue);
-
-        input_ios::NativeTouch *nativeTouch = (input_ios::NativeTouch *)val_data(nativeTouchValue);
         CGPoint locationInView = [touch locationInView:self.view];
-        nativeTouch->x = locationInView.x * [[UIScreen mainScreen] scale];
-        nativeTouch->y = locationInView.y * [[UIScreen mainScreen] scale];
+        touchList[i].x = locationInView.x * [[UIScreen mainScreen] scale];
+        touchList[i].y = locationInView.y * [[UIScreen mainScreen] scale];
 
         switch(touch.phase)
         {
             case(UITouchPhaseBegan):
-                nativeTouch->state = 0;
+                touchList[i].state = 0;
                 break;
             case(UITouchPhaseMoved):
-                nativeTouch->state = 1;
+                touchList[i].state = 1;
                 break;
             case(UITouchPhaseStationary):
-                nativeTouch->state = 2;
+                touchList[i].state = 2;
                 break;
             case(UITouchPhaseEnded):
-                nativeTouch->state = 3;
+                touchList[i].state = 3;
                 break;
             case(UITouchPhaseCancelled):
-                nativeTouch->state = 4;
+                touchList[i].state = 4;
         }
-        nativeTouch->id = convertPointerToUniqueInt(touch);
+        touchList[i].id = convertPointerToUniqueInt(touch);
 
         ++i;
     }
 
-    callHaxeOnTouchesCallback(touchListToSend);
+    callHaxeOnTouchesCallback(touchCountValue, touchListValue);
 }
 
 
@@ -114,6 +112,13 @@ extern void callHaxeOnTouchesCallback(value touchList);
 	} else {
 		method_exchangeImplementations(originalMethod, newMethod);
 	}
+}
+
+- (void) dealloc
+{
+    delete[] touchList;
+
+    [super dealloc];
 }
 
 @end

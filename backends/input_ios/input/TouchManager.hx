@@ -102,7 +102,7 @@ class TouchManager
         }
         this->onTouches->dispatch(this->touchesToSend);
     ") 
-	public function newTouchesCallback(touchCount : Dynamic, touchList : Array<Dynamic>) {}
+	public function newTouchesCallback(touchCount : Dynamic, touchList : Dynamic) {}
 
 	static public inline function instance() : TouchManager
 	{

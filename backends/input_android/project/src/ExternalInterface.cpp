@@ -6,62 +6,63 @@
 #include <jni.h>
 
 #ifdef __GNUC__
-  #define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
+	#define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
 #else
-  #define JAVA_EXPORT JNIEXPORT
+	#define JAVA_EXPORT JNIEXPORT
 #endif
 
 #include "input_android/NativeTouch.h"
 
-static value *__onTouchesCallback = NULL;
+static value *__onTouchBatchStartCallback = NULL;
+static value *__onTouchCallback = NULL;
 
-static value __touchListPool;
-static value __touchListToSend;
+static NativeTouch __touch;
+static value __touchValue;
 
-#define TOUCH_LIST_POOL_SIZE 40
+static int __touchCount;
+static value __touchCountValue;
 
-static value inputandroid_initialize(value onTouchesCallback)
+static value inputandroid_initialize(value onTouchBatchStartCallback, value onTouchCallback)
 {
-	val_check_function(onTouchesCallback, 1); // Is Func ?
+	val_check_function(onTouchBatchStartCallback, 1); // Is Func ?
 
-	if (__onTouchesCallback == NULL)
+	if (__onTouchBatchStartCallback == NULL)
 	{
-		__onTouchesCallback = alloc_root();
+		__onTouchBatchStartCallback = alloc_root();
 	}
-	*__onTouchesCallback = onTouchesCallback;
+	*__onTouchBatchStartCallback = onTouchBatchStartCallback;
 
-	__touchListPool = alloc_array(TOUCH_LIST_POOL_SIZE);
+	val_check_function(onTouchCallback, 1); // Is Func ?
 
-    for (int i = 0; i < TOUCH_LIST_POOL_SIZE; i++)
-    {
-        val_array_set_i(__touchListPool, i, input_android::NativeTouch::createHaxePointer());
-    }
+	if (__onTouchCallback == NULL)
+	{
+		__onTouchCallback = alloc_root();
+	}
+	*__onTouchCallback = onTouchCallback;
 
-    __touchListToSend = alloc_array(TOUCH_LIST_POOL_SIZE);
-
+    __touchValue = alloc_abstract(0, &__touch);
+    __touchCountValue = alloc_abstract(0, &__touchCount);
 	return alloc_null();
 }
-DEFINE_PRIM (inputandroid_initialize, 1);
-
-extern "C" int inputandroid_register_prims () { return 0; }
+DEFINE_PRIM (inputandroid_initialize, 2);
 
 
 struct AutoHaxe
 {
-   int base;
-   const char *message;
-   AutoHaxe(const char *inMessage)
-   {  
-      base = 0;
-      message = inMessage;
-      gc_set_top_of_stack(&base,true);
-      //__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Enter %s %p", message, pthread_self());
-   }
-   ~AutoHaxe()
-   {
-      //__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Leave %s %p", message, pthread_self());
-      gc_set_top_of_stack(0,true);
-   }
+	int base;
+	const char *message;
+	AutoHaxe(const char *inMessage)
+	{  
+		base = 0;
+		message = inMessage;
+		gc_set_top_of_stack(&base,true);
+		//__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Enter %s %p", message, pthread_self());
+	}
+	~AutoHaxe()
+	{
+		//__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Leave %s %p", message, pthread_self());
+		gc_set_top_of_stack(0,true);
+	}
 };
 
 extern "C" {
@@ -69,41 +70,28 @@ extern "C" {
 	JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_touchInfo(JNIEnv * env, jobject obj, jint identifier, jfloat x, jfloat y, jint state);
 };
 
-static int __touchesLeft = 0;
-static int __totalTouches = 0;
 
 JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_startTouchInfoBatch(JNIEnv * env, jobject obj, jint count)
 {
 	AutoHaxe haxe("startTouchInfoBatch");
 
-	__touchesLeft = count;
-	__totalTouches = count;
-    val_array_set_size(__touchListToSend, count);
+	__touchCount = count;
+
+	val_call1(*__onTouchBatchStartCallback, __touchCountValue);
 }
 
 JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_touchInfo(JNIEnv * env, jobject obj, jint identifier, jfloat x, jfloat y, jint state)
 {
 	AutoHaxe haxe("onTouchInfo");
 
-    value nativeTouchValue = val_array_i(__touchListPool, __totalTouches - __touchesLeft);
-    val_array_set_i(__touchListToSend, __totalTouches - __touchesLeft, nativeTouchValue);
+	__touch.id = identifier;
+	__touch.state = state;
+	__touch.x = x;
+	__touch.y = y;
 
-    input_android::NativeTouch *nativeTouch = (input_android::NativeTouch *)val_data(nativeTouchValue);
-    nativeTouch->x = x;
-    nativeTouch->y = y;
-    nativeTouch->state = state;
-    nativeTouch->id = identifier;
-
-    __touchesLeft--;
-	if (__touchesLeft == 0)
-	{
-		val_call1(*__onTouchesCallback, __touchListToSend);
-	}
-
+	val_call1(*__onTouchCallback, __touchValue);
 }
 
-extern "C" int openglcontextandroid_register_prims () { return 0; }
-
-
+extern "C" int inputandroid_register_prims () { return 0; }
 
 

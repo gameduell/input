@@ -20,12 +20,17 @@ import input.Touch;
     #include <input/Touch.h>
     #include <input/TouchState.h>
 ")
+@:headerClassCode('                 
+public:                             
+    int _touchCountForBatch;     
+    int _currentTouchIndex;  
+') 
 class TouchManager
 {
 	public var onTouches : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
-	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 1);
+	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 2);
     static private var j_initialize = JNI.createStaticMethod("org/haxe/duell/input/DuellInputActivityExtension", "initialize", "()V");
 
     private var touchPool : Array<Touch>;
@@ -44,37 +49,43 @@ class TouchManager
         touchesToSend = [];
 
         inputandroid_initialize(
-            newTouchesCallback
+            touchBatchStartingCallback,
+            touchCallback
         );
 
         j_initialize();
 	}
 
-	public function newTouchesCallback(touches : Array<Dynamic>)
-    {
-        if (touches.length > touchesToSend.length)
+    @:functionCode("
+        _touchCountForBatch = *(int*)touchCountValue->__GetHandle();
+        _currentTouchIndex = 0;
+
+        int touchCount = _touchCountForBatch;
+
+        if(touchCount > this->touchesToSend->length)
         {
-            for (i in touchesToSend.length...touches.length)
+            int i = this->touchesToSend->length;
+            while(this->touchesToSend->length < touchCount)
             {
-                touchesToSend.push(touchPool[i]);
+                this->touchesToSend->push(this->touchPool->__get(i).StaticCast< ::input::Touch >());
+                i++;
             }
         }
-        else if (touches.length < touchesToSend.length)
+        else
         {
-            touchesToSend.splice(touches.length, touchesToSend.length - touches.length);
+            if (touchCount < this->touchesToSend->length)
+            {
+                this->touchesToSend->splice(touchCount,(this->touchesToSend->length - touchCount,true));
+            }
         }
-
-        for(i in 0...touches.length)
-        {
-            setupWithNativeTouch(touchesToSend[i], touches[i]);
-
-        }
-
-        onTouches.dispatch(touchesToSend);
-    }
+    ") 
+    private function touchBatchStartingCallback(touchCountValue : Dynamic) {}
 
     @:functionCode("
-        input_android::NativeTouch *nativeTouch = (input_android::NativeTouch *)nativeTouchDynamic->__GetHandle();
+        ::input::Touch touch = this->touchesToSend->__get(_currentTouchIndex).StaticCast< ::input::Touch >();
+
+        NativeTouch *nativeTouch = (NativeTouch*)touchValue->__GetHandle();
+
         touch->x = nativeTouch->x;
         touch->y = nativeTouch->y;
         touch->id = nativeTouch->id;
@@ -101,8 +112,17 @@ class TouchManager
             }
             ;break;
         }
+
+
+        _currentTouchIndex++;
+
+        if (_touchCountForBatch == _currentTouchIndex)
+        {
+            this->onTouches->dispatch(this->touchesToSend);
+
+        }
     ") 
-    private static function setupWithNativeTouch(touch : Touch, nativeTouchDynamic : Dynamic) : Void {}
+    private function touchCallback(touchValue : Dynamic) {}
 
 	static public inline function instance() : TouchManager
 	{

@@ -4,7 +4,6 @@ enum MouseButtonState
 {
     MouseButtonStateDown;
     MouseButtonStateUp;
-    MouseButtonStateMove;
 }
 
 enum MouseButton
@@ -23,6 +22,4 @@ typedef MouseButtonEventData =
 
 typedef MouseMovementEventData =
 {
-	var deltaX : Float;
-	var deltaY : Float; 
 }

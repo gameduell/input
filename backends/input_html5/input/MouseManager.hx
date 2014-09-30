@@ -59,6 +59,7 @@ class MouseManager
                     mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateUp});
                 });
 				mouseInstance.jquery.mousemove(function(e) : Void {
+                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateMove});
 					mouseInstance.mainMouse.screenPosition.x = e.pageX;
 					mouseInstance.mainMouse.screenPosition.y = e.pageY;
 				});

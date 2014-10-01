@@ -4,6 +4,7 @@ enum MouseButtonState
 {
     MouseButtonStateDown;
     MouseButtonStateUp;
+    MouseButtonStateClick;
 }
 
 enum MouseButton

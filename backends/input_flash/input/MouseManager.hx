@@ -50,6 +50,9 @@ class MouseManager
         managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent){
             managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateUp});
         });
+        managerInstance.stage.addEventListener(flash.events.MouseEvent.CLICK, function(event : flash.events.MouseEvent){
+            managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateClick});
+        });
         managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_MOVE, function(event : flash.events.MouseEvent){
             managerInstance.mainMouse.onMovementEvent.dispatch({});
         });

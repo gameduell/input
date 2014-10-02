@@ -58,9 +58,9 @@ class MouseManager
                 mouseInstance.jquery.mouseup(function(e:Dynamic){
                     mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateUp});
                 });
-                mouseInstance.jquery.click(function(e:Dynamic){
-                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateClick});
-                });
+//                mouseInstance.jquery.click(function(e:Dynamic){
+//                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateClick});
+//                });
 				mouseInstance.jquery.mousemove(function(e) : Void {
                     mouseInstance.mainMouse.screenPosition.x = e.pageX;
                     mouseInstance.mainMouse.screenPosition.y = e.pageY;

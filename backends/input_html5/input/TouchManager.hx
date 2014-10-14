@@ -1,7 +1,4 @@
 package input;
-
-import input.Mouse;
-
 import msignal.Signal;
 
 import js.JQuery;

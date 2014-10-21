@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library>
 
-    <duelllib name="types" />
+    <duelllib name="types" version="1.*.*" />
     <haxelib name="msignal" />
 
     <include path="backends/input_html5/duell_library.xml" if="html5" />

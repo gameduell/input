@@ -2,7 +2,7 @@
 <library>
     <ndll name="inputandroid" build-file-path="project/Build.xml" bin-path="ndll" /> 
 
-    <duelllib name="hxjni" />
+    <duelllib name="hxjni"  version="1.*.*"/>
 
 
     <platform-config>

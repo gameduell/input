@@ -3,3 +3,5 @@ backends/input_ios/project/obj
 backends/input_android/java/.idea
 backends/input_android/ndll
 backends/input_android/project/obj
+.idea/
+*.iml

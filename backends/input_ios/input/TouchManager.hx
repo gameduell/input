@@ -23,11 +23,15 @@ class TouchManager
 	public var onTouches : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
-	static private var inputios_initialize = Lib.load ("inputios", "inputios_initialize", 1);
+	static private var inputios_initialize = Lib.load ("inputios", "inputios_initialize", 2);
 
     private var touchPool : Array<Touch>;
     private var touchesToSend : Array<Touch>;
     private static inline var touchPoolSize : Int = 40; /// well, doesn't cost anything
+
+    /// prevents GC in release
+    private var __touchListCache: Dynamic;
+    private var __touchCountCache: Dynamic;
 
 	private function new()
 	{
@@ -41,13 +45,20 @@ class TouchManager
         touchesToSend = [];
 
         inputios_initialize(
-            newTouchesCallback
+            newTouchesCallback,
+            setCachedVariables
         );
 	}
 
+    private function setCachedVariables(touchListCache: Dynamic, touchCountCache: Dynamic)
+    {
+        __touchListCache = touchListCache;
+        __touchCountCache = touchCountCache;
+    }
+
     @:functionCode("
-        NativeTouch *_touchList = (NativeTouch*)touchList->__GetHandle();
         int _touchCount = *(int*)touchCount->__GetHandle();
+        NativeTouch *_touchList = (NativeTouch*)touchList->__GetHandle();
         if(_touchCount > this->touchesToSend->length)
         {
             int i = this->touchesToSend->length;

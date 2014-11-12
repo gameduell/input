@@ -19,12 +19,15 @@ static value touchListValue;
 
 @implementation UIViewController (CaptureTouches)
 
+extern void callSetCachedVariablesCallback(value touchCount, value touchList);
 - (void) initializeTouchCapturing
 {
     touchList = new NativeTouch[TOUCH_LIST_POOL_SIZE];
 
     touchCountValue = alloc_abstract(k_TouchCount, &touchCount);
     touchListValue = alloc_abstract(k_TouchList, touchList);
+
+    callSetCachedVariablesCallback(touchCountValue, touchListValue);
 }
 
 - (void)capturedTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event

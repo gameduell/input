@@ -30,12 +30,16 @@ class TouchManager
 	public var onTouches : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
-	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 2);
+	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 3);
     static private var j_initialize = JNI.createStaticMethod("org/haxe/duell/input/DuellInputActivityExtension", "initialize", "()V");
 
     private var touchPool : Array<Touch>;
     private var touchesToSend : Array<Touch>;
     private static inline var touchPoolSize : Int = 40; /// well, doesn't cost anything
+
+    /// prevents GC in release
+    private var __touchCache: Dynamic;
+    private var __touchCountCache: Dynamic;
 
 	private function new()
 	{
@@ -50,11 +54,18 @@ class TouchManager
 
         inputandroid_initialize(
             touchBatchStartingCallback,
-            touchCallback
+            touchCallback,
+            setCachedVariables
         );
 
         j_initialize();
 	}
+
+    private function setCachedVariables(touchCache: Dynamic, touchCountCache: Dynamic)
+    {
+        __touchCache = touchCache;
+        __touchCountCache = touchCountCache;
+    }
 
     @:functionCode("
         _touchCountForBatch = *(int*)touchCountValue->__GetHandle();

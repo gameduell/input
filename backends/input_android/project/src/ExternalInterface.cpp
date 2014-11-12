@@ -22,7 +22,7 @@ static value __touchValue;
 static int __touchCount;
 static value __touchCountValue;
 
-static value inputandroid_initialize(value onTouchBatchStartCallback, value onTouchCallback)
+static value inputandroid_initialize(value onTouchBatchStartCallback, value onTouchCallback, value setCachedVariables)
 {
 	val_check_function(onTouchBatchStartCallback, 1); // Is Func ?
 
@@ -42,9 +42,11 @@ static value inputandroid_initialize(value onTouchBatchStartCallback, value onTo
 
     __touchValue = alloc_abstract(0, &__touch);
     __touchCountValue = alloc_abstract(0, &__touchCount);
+
+	val_call2(setCachedVariables, __touchValue, __touchCountValue);
 	return alloc_null();
 }
-DEFINE_PRIM (inputandroid_initialize, 2);
+DEFINE_PRIM (inputandroid_initialize, 3);
 
 
 struct AutoHaxe

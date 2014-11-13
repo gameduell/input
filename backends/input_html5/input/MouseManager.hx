@@ -8,22 +8,25 @@ import js.JQuery;
 
 import js.Browser;
 import input.Mouse;
-import input.MouseEventData;
+import input.MouseButtonEventData;
+
 @:access(input.Mouse)
 class MouseManager
 {
 	private static var mouseInstance : MouseManager;
 
 	private var mainMouse : Mouse;
-	public var onTouches : Signal1<Array<Touch>>;
 	private var mouses : Map<String, Mouse>;
+	private var mouseButtonEventData: MouseButtonEventData;
+	private var mouseMovementEventData: MouseMovementEventData;
 	private var jquery : JQuery;
 	private function new()
 	{
 		mainMouse = new Mouse();
 		mouses = new Map();
-		onTouches = new Signal1();
 		jquery = new JQuery(Browser.window);
+		mouseButtonEventData = new MouseButtonEventData();
+		mouseMovementEventData = new MouseMovementEventData();
 	}
 
 	public function getMainMouse() : Mouse
@@ -50,26 +53,31 @@ class MouseManager
 	{
 		mouseInstance = new MouseManager();		
 
-		mouseInstance.jquery.ready(function(e):Void
+		mouseInstance.initializeCallbacks(finishedCallback);
+	}
+
+	private function initializeCallbacks(finishedCallback : Void -> Void)
+	{
+		jquery.ready(function(e):Void
         {
-                mouseInstance.jquery.mousedown(function(e:Dynamic){
-                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});
-                });
-                mouseInstance.jquery.mouseup(function(e:Dynamic){
-                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateUp});
-                });
-//                mouseInstance.jquery.click(function(e:Dynamic){
-//                    mouseInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateClick});
-//                });
-				mouseInstance.jquery.mousemove(function(e) : Void {
-                    mouseInstance.mainMouse.screenPosition.x = e.pageX;
-                    mouseInstance.mainMouse.screenPosition.y = e.pageY;
-                    mouseInstance.mainMouse.onMovementEvent.dispatch({});
-				});
+            jquery.mousedown(function(e:Dynamic){
+            	mouseButtonEventData.button = MouseButtonLeft;
+            	mouseButtonEventData.newState = MouseButtonStateDown;
+                mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+            });
+            jquery.mouseup(function(e:Dynamic){
+            	mouseButtonEventData.button = MouseButtonLeft;
+            	mouseButtonEventData.newState = MouseButtonStateUp;
+                mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+            });
+			jquery.mousemove(function(e) : Void {
+                mainMouse.screenPosition.x = e.pageX;
+                mainMouse.screenPosition.y = e.pageY;
+                mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+			});
 
 			finishedCallback();
 		});
-
 	}
 }
 

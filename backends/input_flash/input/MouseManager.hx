@@ -1,8 +1,8 @@
 package input;
 
-
 import input.Mouse;
-import input.MouseEventData;
+import input.MouseButtonEventData;
+
 import flash.Lib;
 import flash.display.Stage;
 
@@ -14,10 +14,15 @@ class MouseManager
 	private var mainMouse : FlashMouse;
 	private var mouses : Map<String, Mouse>;
 	private var stage:Stage = flash.Lib.current.stage;
+
+	private var mouseButtonEventData: MouseButtonEventData;
+	private var mouseMovementEventData: MouseMovementEventData;
 	private function new()
 	{
 		mainMouse = new FlashMouse();
 		mouses = new Map();
+		mouseButtonEventData = new MouseButtonEventData();
+		mouseMovementEventData = new MouseMovementEventData();
 	}
 
 	public function getMainMouse() : Mouse
@@ -43,18 +48,26 @@ class MouseManager
 	public static function initialize(finishedCallback : Void -> Void) : Void
 	{
 		managerInstance = new MouseManager();
-		
-		managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_DOWN, function(event : flash.events.MouseEvent){
-			managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateDown});
+
+        managerInstance.initializeCallbacks(finishedCallback);
+	}
+
+	private function initializeCallbacks(finishedCallback : Void -> Void)
+	{
+		stage.addEventListener(flash.events.MouseEvent.MOUSE_DOWN, function(event : flash.events.MouseEvent){
+			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
+			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 		});
-        managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent){
-            managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateUp});
+		
+        stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent){
+			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
+            mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
         });
-//        managerInstance.stage.addEventListener(flash.events.MouseEvent.CLICK, function(event : flash.events.MouseEvent){
-//            managerInstance.mainMouse.onButtonEvent.dispatch({button : MouseButton.MouseButtonLeft, newState : MouseButtonState.MouseButtonStateClick});
-//        });
-        managerInstance.stage.addEventListener(flash.events.MouseEvent.MOUSE_MOVE, function(event : flash.events.MouseEvent){
-            managerInstance.mainMouse.onMovementEvent.dispatch({});
+
+        stage.addEventListener(flash.events.MouseEvent.MOUSE_MOVE, function(event : flash.events.MouseEvent){
+            mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
         });
 
 		finishedCallback();

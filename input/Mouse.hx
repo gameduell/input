@@ -1,6 +1,8 @@
 package input;
 
-import input.MouseEventData;
+import input.MouseButtonEventData;
+import input.MouseButton;
+import input.MouseButtonState;
 
 import types.Vector2;
 

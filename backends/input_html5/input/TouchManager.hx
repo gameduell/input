@@ -1,13 +1,15 @@
 package input;
 import msignal.Signal;
 
+import de.polygonal.ds.pooling.DynamicObjectPool;
+
 import js.JQuery;
 import js.Browser;
 import input.Touch;
 class TouchManager
 {
 	public var onTouches (default, null) : Signal1<Array<Touch>>;
-    private var touchPool : Array<Touch>;
+    private var touchPool: DynamicObjectPool<Touch>;
     private var touchesToSend : Array<Touch>;
     private var touchPoolSize : Int = 40; 
 
@@ -20,11 +22,7 @@ class TouchManager
 		jquery = new JQuery(Browser.window);
 		onTouches = new Signal1();
 
-        touchPool = [];
-        for(i in 0...touchPoolSize)
-        {
-            touchPool.push(new Touch());
-        }
+        touchPool = new DynamicObjectPool<Touch>(Touch);
         touchesToSend = [];
 	}
 
@@ -72,12 +70,15 @@ class TouchManager
         {
             for (i in touchesToSend.length...touches.length)
             {
-                touchesToSend.push(touchPool[i]);
+                touchesToSend.push(touchPool.get());
             }
         }
         else if (touches.length < touchesToSend.length)
         {
-            touchesToSend.splice(touches.length, touchesToSend.length - touches.length);
+        	var unusedObjectsCount = touchesToSend.length - touches.length;
+            var unusedObjects = touchesToSend.splice(touches.length, unusedObjectsCount);
+
+            for(o in unusedObjects) touchPool.put(o);
         }
 
         for(i in 0...touches.length)

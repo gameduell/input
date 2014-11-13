@@ -1,6 +1,7 @@
 package input;
 
 import input.Mouse;
+import input.Touch;
 
 import msignal.Signal;
 
@@ -8,7 +9,7 @@ import cpp.Lib;
 
 import hxjni.JNI;
 
-import input.Touch;
+import de.polygonal.ds.pooling.DynamicObjectPool;
 
 @:buildXml('
     <files id="haxe">
@@ -33,7 +34,7 @@ class TouchManager
 	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 3);
     static private var j_initialize = JNI.createStaticMethod("org/haxe/duell/input/DuellInputActivityExtension", "initialize", "()V");
 
-    private var touchPool : Array<Touch>;
+    private var touchPool: DynamicObjectPool<Touch>;
     private var touchesToSend : Array<Touch>;
     private static inline var touchPoolSize : Int = 40; /// well, doesn't cost anything
 
@@ -45,11 +46,8 @@ class TouchManager
 	{
 		onTouches = new Signal1();
 
-        touchPool = [];
-        for(i in 0...touchPoolSize)
-        {
-            touchPool.push(new Touch());
-        }
+        touchPool = new DynamicObjectPool<Touch>(Touch);
+
         touchesToSend = [];
 
         inputandroid_initialize(
@@ -78,15 +76,21 @@ class TouchManager
             int i = this->touchesToSend->length;
             while(this->touchesToSend->length < touchCount)
             {
-                this->touchesToSend->push(this->touchPool->__get(i).StaticCast< ::input::Touch >());
+                this->touchesToSend->push(this->touchPool->get().StaticCast< ::input::Touch >());
                 i++;
             }
         }
         else
         {
-            if (touchCount < this->touchesToSend->length)
+            int unusedObjectsCount = (this->touchesToSend->length - touchCount);
+            Array< ::Dynamic> unusedObjects = this->touchesToSend->splice(touchCount, unusedObjectsCount);
+            for(int i = 0; i < unusedObjects->length; ++i)
             {
-                this->touchesToSend->splice(touchCount,(this->touchesToSend->length - touchCount,true));
+                ::input::Touch o = unusedObjects->__get(i).StaticCast< ::input::Touch >();
+                ::de::polygonal::ds::pooling::DynamicObjectPool _this = this->touchPool;
+                int _g1 = (_this->_top)++;
+                hx::IndexRef((_this->_pool).mPtr,_g1) = o;
+                (_this->_used)--;
             }
         }
     ") 

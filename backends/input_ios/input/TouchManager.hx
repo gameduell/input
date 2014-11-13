@@ -4,6 +4,8 @@ import input.Mouse;
 
 import msignal.Signal;
 
+import de.polygonal.ds.pooling.DynamicObjectPool;
+
 import cpp.Lib;
 
 import input.Touch;
@@ -25,7 +27,7 @@ class TouchManager
 	static private var touchInstance : TouchManager;
 	static private var inputios_initialize = Lib.load ("inputios", "inputios_initialize", 2);
 
-    private var touchPool : Array<Touch>;
+    private var touchPool: DynamicObjectPool<Touch>;
     private var touchesToSend : Array<Touch>;
     private static inline var touchPoolSize : Int = 40; /// well, doesn't cost anything
 
@@ -37,11 +39,8 @@ class TouchManager
 	{
 		onTouches = new Signal1();
 
-        touchPool = [];
-        for(i in 0...touchPoolSize)
-        {
-            touchPool.push(new Touch());
-        }
+        touchPool = new DynamicObjectPool<Touch>(Touch);
+
         touchesToSend = [];
 
         inputios_initialize(
@@ -64,15 +63,21 @@ class TouchManager
             int i = this->touchesToSend->length;
             while(this->touchesToSend->length < _touchCount)
             {
-                this->touchesToSend->push(this->touchPool->__get(i).StaticCast< ::input::Touch >());
+                this->touchesToSend->push(this->touchPool->get().StaticCast< ::input::Touch >());
                 i++;
             }
         }
-        else
+        else if (_touchCount < this->touchesToSend->length)
         {
-            if (_touchCount < this->touchesToSend->length)
+            int unusedObjectsCount = (this->touchesToSend->length - _touchCount);
+            Array< ::Dynamic> unusedObjects = this->touchesToSend->splice(_touchCount, unusedObjectsCount);
+            for(int i = 0; i < unusedObjects->length; ++i)
             {
-                this->touchesToSend->splice(_touchCount,(this->touchesToSend->length - _touchCount,true));
+                ::input::Touch o = unusedObjects->__get(i).StaticCast< ::input::Touch >();
+                ::de::polygonal::ds::pooling::DynamicObjectPool _this = this->touchPool;
+                int _g1 = (_this->_top)++;
+                hx::IndexRef((_this->_pool).mPtr,_g1) = o;
+                (_this->_used)--;
             }
         }
 

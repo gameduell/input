@@ -9,6 +9,9 @@ enum TouchState
     TouchStateCancelled;
 }
 
+
+/// WARNING, these objects are short lived, and unless they are used on the same frame where
+/// they are dispatched, they should have its contents copied
 class Touch
 {
     public var id(default, default) : Int; 
@@ -23,4 +26,12 @@ class Touch
     	y = 0;
     	state = TouchStateBegan;
     };
+
+    public function copy(origin: Touch): Void
+    {
+        x = origin.x;
+        y = origin.y;
+        state = origin.state;
+        id = origin.id;
+    }
 }

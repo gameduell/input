@@ -14,7 +14,7 @@ class MouseButtonEventData
     {
     	button = null;
     	newState = null;
-    };
+    }
 
     public function copy(origin: MouseButtonEventData): Void
     {

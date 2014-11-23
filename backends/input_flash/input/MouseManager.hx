@@ -11,12 +11,15 @@ class MouseManager
 {
 	private static var managerInstance : MouseManager;
 
-	private var mainMouse : FlashMouse;
-	private var mouses : Map<String, Mouse>;
-	private var stage:Stage = flash.Lib.current.stage;
+	private var mainMouse: FlashMouse;
+	private var mouses: Map<String, Mouse>;
+	private var stage: Stage = flash.Lib.current.stage;
 
 	private var mouseButtonEventData: MouseButtonEventData;
 	private var mouseMovementEventData: MouseMovementEventData;
+	private var oldX: Float = 0.0;
+	private var oldY: Float = 0.0;
+
 	private function new()
 	{
 		mainMouse = new FlashMouse();
@@ -59,6 +62,15 @@ class MouseManager
 			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
 			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 		});
+
+		stage.addEventListener(flash.events.MouseEvent.MOUSE_MOVE, function(event : flash.events.MouseEvent)
+		{
+			mouseMovementEventData.deltaX = flash.Lib.current.stage.mouseX - oldX;
+			mouseMovementEventData.deltaY = flash.Lib.current.stage.mouseY - oldY;
+			mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+			oldX = flash.Lib.current.stage.mouseX;
+			oldY = flash.Lib.current.stage.mouseY;
+		});
 		
         stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent){
 			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
@@ -66,9 +78,19 @@ class MouseManager
             mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
         });
 
-        stage.addEventListener(flash.events.MouseEvent.MOUSE_MOVE, function(event : flash.events.MouseEvent){
-            mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
-        });
+
+		stage.addEventListener(flash.events.MouseEvent.CLICK, function(event : flash.events.MouseEvent){
+			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
+			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+		});
+
+		stage.doubleClickEnabled=true;
+		stage.addEventListener(flash.events.MouseEvent.DOUBLE_CLICK, function(event : flash.events.MouseEvent){
+			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
+			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+		});
 
 		finishedCallback();
 	}

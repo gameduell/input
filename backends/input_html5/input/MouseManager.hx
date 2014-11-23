@@ -61,19 +61,36 @@ class MouseManager
 		jquery.ready(function(e):Void
         {
             jquery.mousedown(function(e:Dynamic){
-            	mouseButtonEventData.button = MouseButtonLeft;
-            	mouseButtonEventData.newState = MouseButtonStateDown;
+            	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+            	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
             });
+
+			jquery.mousemove(function(e) : Void
+			{
+				mouseMovementEventData.deltaX = e.pageX - mainMouse.screenPosition.x;
+				mouseMovementEventData.deltaY = e.pageY - mainMouse.screenPosition.y;
+				mainMouse.screenPosition.x = e.pageX;
+				mainMouse.screenPosition.y = e.pageY;
+				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+			});
+
             jquery.mouseup(function(e:Dynamic){
-            	mouseButtonEventData.button = MouseButtonLeft;
-            	mouseButtonEventData.newState = MouseButtonStateUp;
+            	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+            	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
             });
-			jquery.mousemove(function(e) : Void {
-                mainMouse.screenPosition.x = e.pageX;
-                mainMouse.screenPosition.y = e.pageY;
-                mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+
+			jquery.click(function(e:Dynamic){
+				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
+				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+			});
+
+			jquery.dblclick(function(e:Dynamic){
+				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
+				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
+				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 			});
 
 			finishedCallback();

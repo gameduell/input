@@ -5,4 +5,5 @@ enum MouseButtonState
     MouseButtonStateDown;
     MouseButtonStateUp;
     MouseButtonStateClick;
+    MouseButtonStateDoubleClick;
 }

@@ -10,7 +10,7 @@ class MouseMovementEventData
     {
     	deltaX = 0;
     	deltaY = 0;
-    };
+    }
 
     public function copy(origin: MouseMovementEventData): Void
     {

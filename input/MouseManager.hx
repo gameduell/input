@@ -8,7 +8,7 @@ extern class MouseManager
 
 	static public function instance() : MouseManager;
 
-	public static function initialize() : Void;
+	public static function initialize(finishedCallback : Void->Void) : Void;
 
 	public static function getMainMouse() : Mouse;
 

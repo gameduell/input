@@ -57,7 +57,8 @@ class MouseManager
 
 	private function initializeCallbacks(finishedCallback : Void -> Void)
 	{
-		stage.addEventListener(flash.events.MouseEvent.MOUSE_DOWN, function(event : flash.events.MouseEvent){
+		stage.addEventListener(flash.events.MouseEvent.MOUSE_DOWN, function(event : flash.events.MouseEvent)
+		{
 			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
 			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
@@ -72,23 +73,34 @@ class MouseManager
 			oldY = flash.Lib.current.stage.mouseY;
 		});
 		
-        stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent){
+        stage.addEventListener(flash.events.MouseEvent.MOUSE_UP, function(event : flash.events.MouseEvent)
+		{
 			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
             mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
         });
 
 
-		stage.addEventListener(flash.events.MouseEvent.CLICK, function(event : flash.events.MouseEvent){
+		stage.addEventListener(flash.events.MouseEvent.CLICK, function(event : flash.events.MouseEvent)
+		{
 			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
 			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 		});
 
 		stage.doubleClickEnabled=true;
-		stage.addEventListener(flash.events.MouseEvent.DOUBLE_CLICK, function(event : flash.events.MouseEvent){
+		stage.addEventListener(flash.events.MouseEvent.DOUBLE_CLICK, function(event : flash.events.MouseEvent)
+		{
 			mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
+			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+		});
+
+		stage.addEventListener(flash.events.MouseEvent.MOUSE_WHEEL, function(event : flash.events.MouseEvent)
+		{
+			var wheelDelta: Float = cast event.delta;
+			mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
+			mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
 			mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 		});
 

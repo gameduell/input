@@ -5,5 +5,6 @@ enum MouseButton
     MouseButtonLeft;
     MouseButtonRight;
     MouseButtonMiddle;
-    MouseButtonOther(name : String);
+    MouseButtonWheel(delta: Float);
+    MouseButtonOther(name: String);
 }

@@ -73,19 +73,22 @@ class MouseManager
 				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
 			});
 
-            jquery.mouseup(function(e:Dynamic){
+            jquery.mouseup(function(e:Dynamic)
+			{
             	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
             	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
             });
 
-			jquery.click(function(e:Dynamic){
+			jquery.click(function(e:Dynamic)
+			{
 				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 			});
 
-			jquery.dblclick(function(e:Dynamic){
+			jquery.dblclick(function(e:Dynamic)
+			{
 				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);

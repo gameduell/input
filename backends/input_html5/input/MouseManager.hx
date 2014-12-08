@@ -93,9 +93,42 @@ class MouseManager
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 			});
+			
+			if (untyped Browser.window.addEventListener) 
+			{
+				// IE9, Chrome, Safari, Opera
+				untyped Browser.window.addEventListener("mousewheel", mouseWheelHandler, false);
+				// Firefox
+				untyped Browser.window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
+			}// IE 6/7/8
+			else 
+			{
+				untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);		
+			}	   
 
 			finishedCallback();
 		});
+	}
+	private function mouseWheelHandler(e: Dynamic): Void
+	{
+		var wheelDelta:Float = 0.0;
+		if(untyped Browser.window.event)
+		{
+			e = Browser.window.event;
+		}
+		if(untyped e.wheelDelta)
+		{
+			wheelDelta = e.wheelDelta;
+		}
+		else
+		{
+			wheelDelta = -e.detail;
+		}
+		var delta = Math.max(-1, Math.min(1, wheelDelta));
+
+		mouseButtonEventData.button = MouseButton.MouseButtonWheel(delta);
+		mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
+		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 	}
 }
 

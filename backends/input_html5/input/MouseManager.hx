@@ -93,7 +93,8 @@ class MouseManager
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 			});
-			
+			/// Mousewheel Events 
+
 			if (untyped Browser.window.addEventListener) 
 			{
 				// IE9, Chrome, Safari, Opera
@@ -111,22 +112,27 @@ class MouseManager
 	}
 	private function mouseWheelHandler(e: Dynamic): Void
 	{
-		var wheelDelta:Float = 0.0;
+		e.preventDefault();
+		var wheelDelta: Float = 0.0;
+		var normalWheelData: Float = 0.0;
+
 		if(untyped Browser.window.event)
 		{
 			e = Browser.window.event;
 		}
 		if(untyped e.wheelDelta)
 		{
-			wheelDelta = e.wheelDelta;
+			wheelDelta = cast e.wheelDelta/120;
 		}
 		else
 		{
-			wheelDelta = -e.detail;
+			wheelDelta = cast -e.detail/3;
 		}
-		var delta = Math.max(-1, Math.min(1, wheelDelta));
 
-		mouseButtonEventData.button = MouseButton.MouseButtonWheel(delta);
+		var wheelDirection: Float = Math.max(-1, Math.min(1, wheelDelta));
+		var delta: Float = wheelDirection;
+		
+		mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
 		mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
 		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 	}

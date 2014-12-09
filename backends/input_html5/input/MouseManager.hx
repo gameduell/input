@@ -93,33 +93,35 @@ class MouseManager
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 			});
-			/// Mousewheel Events 
 
+			/// Mousewheel Events
 			if (untyped Browser.window.addEventListener) 
 			{
 				// IE9, Chrome, Safari, Opera
 				untyped Browser.window.addEventListener("mousewheel", mouseWheelHandler, false);
 				// Firefox
 				untyped Browser.window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
-			}// IE 6/7/8
+			}
 			else 
-			{
+			{	// IE 6/7/8
 				untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);		
 			}	   
 
 			finishedCallback();
 		});
 	}
+
 	private function mouseWheelHandler(e: Dynamic): Void
 	{
 		e.preventDefault();
+
 		var wheelDelta: Float = 0.0;
-		var normalWheelData: Float = 0.0;
 
 		if(untyped Browser.window.event)
 		{
 			e = Browser.window.event;
 		}
+
 		if(untyped e.wheelDelta)
 		{
 			wheelDelta = cast e.wheelDelta/120;
@@ -129,9 +131,6 @@ class MouseManager
 			wheelDelta = cast -e.detail/3;
 		}
 
-		var wheelDirection: Float = Math.max(-1, Math.min(1, wheelDelta));
-		var delta: Float = wheelDirection;
-		
 		mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
 		mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
 		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);

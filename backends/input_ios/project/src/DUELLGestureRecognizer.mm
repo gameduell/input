@@ -1,4 +1,4 @@
-#import <input_ios/UIViewController+CaptureTouches.h>
+#import <input_ios/DUELLGestureRecognizer.h>
 
 #include <input_ios/NativeTouch.h>
 
@@ -8,7 +8,7 @@
 
 #define TOUCH_LIST_POOL_SIZE 40
 
-static NativeTouch *touchList;
+static NativeTouch *touchList = NULL;
 static int touchCount;
 
 DEFINE_KIND(k_TouchCount) 
@@ -17,11 +17,13 @@ DEFINE_KIND(k_TouchList)
 static value touchCountValue;
 static value touchListValue;
 
-@implementation UIViewController (CaptureTouches)
+@implementation DUELLGestureRecognizer
 
 extern void callSetCachedVariablesCallback(value touchCount, value touchList);
 - (void) initializeTouchCapturing
 {
+    NSLog(NSStringFromClass([self class]));
+
     touchList = new NativeTouch[TOUCH_LIST_POOL_SIZE];
 
     touchCountValue = alloc_abstract(k_TouchCount, &touchCount);
@@ -30,22 +32,22 @@ extern void callSetCachedVariablesCallback(value touchCount, value touchList);
     callSetCachedVariablesCallback(touchCountValue, touchListValue);
 }
 
-- (void)capturedTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self dispatchTouches:touches];
 }
 
-- (void)capturedTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self dispatchTouches:touches];
 }
 
-- (void)capturedTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self dispatchTouches:touches];
 }
 
-- (void)capturedTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self dispatchTouches:touches];
 }
@@ -62,6 +64,8 @@ extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
 - (void) dispatchTouches:(NSSet *)touches
 {
     touchCount = touches.count;
+
+    NSLog(@"%@", touches);
 
     int i = 0;
     for (UITouch *touch in touches)
@@ -93,28 +97,6 @@ extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
     }
 
     callHaxeOnTouchesCallback(touchCountValue, touchListValue);
-}
-
-
-- (void)swizzleInstanceSelector:(SEL)originalSelector 
-                withNewSelector:(SEL)newSelector
-{
-	Method originalMethod = class_getInstanceMethod([self class], originalSelector);
-	Method newMethod = class_getInstanceMethod([self class], newSelector);
-
-	BOOL methodAdded = class_addMethod([self class],
-	                                 originalSelector,
-	                                 method_getImplementation(newMethod),
-	                                 method_getTypeEncoding(newMethod));
-
-	if (methodAdded) {
-		class_replaceMethod([self class], 
-	  	                    newSelector, 
-	   	                    method_getImplementation(originalMethod),
-	    	                method_getTypeEncoding(originalMethod));
-	} else {
-		method_exchangeImplementations(originalMethod, newMethod);
-	}
 }
 
 - (void) dealloc

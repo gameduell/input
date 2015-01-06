@@ -1,6 +1,6 @@
 #import <input_ios/InputCapturer.h>
 
-#import <input_ios/UIViewController+CaptureTouches.h>
+#import <input_ios/DUELLGestureRecognizer.h>
 
 
 
@@ -20,25 +20,12 @@
 			    Please initialize a library (e.g. opengl) that initializes a window, so the input library can attach to that.");
 	}
 
-	[[UIApplication sharedApplication].keyWindow.rootViewController 
-		initializeTouchCapturing];
-	[[UIApplication sharedApplication].keyWindow.rootViewController 
-				swizzleInstanceSelector:@selector(touchesBegan:withEvent:)
-		        withNewSelector:@selector(capturedTouchesBegan:withEvent:)];
+	UIView *view = [UIApplication sharedApplication].keyWindow.rootViewController.view;
 
-	[[UIApplication sharedApplication].keyWindow.rootViewController 
-				swizzleInstanceSelector:@selector(touchesMoved:withEvent:)
-		        withNewSelector:@selector(capturedTouchesMoved:withEvent:)];
+	DUELLGestureRecognizer *recognizer = [[DUELLGestureRecognizer alloc] initWithTarget:nil action:nil];
+    [view addGestureRecognizer:recognizer];
 
-	[[UIApplication sharedApplication].keyWindow.rootViewController 
-				swizzleInstanceSelector:@selector(touchesEnded:withEvent:)
-		        withNewSelector:@selector(capturedTouchesEnded:withEvent:)];
-
-	[[UIApplication sharedApplication].keyWindow.rootViewController 
-				swizzleInstanceSelector:@selector(touchesCancelled:withEvent:)
-		        withNewSelector:@selector(capturedTouchesCancelled:withEvent:)];
-
-
+    [recognizer initializeTouchCapturing];
 }
 
 @end

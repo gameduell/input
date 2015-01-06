@@ -8,7 +8,7 @@
 		
 		<file name="src/InputCapturer.mm"/>
 		<file name="src/ExternalInterface.mm"/>
-        <file name="src/UIViewController+CaptureTouches.mm"/>
+        <file name="src/DUELLGestureRecognizer.mm"/>
         <file name="src/NativeTouch.cpp"/>
 		
 	</files>

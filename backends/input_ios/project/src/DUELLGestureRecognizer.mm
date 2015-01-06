@@ -22,8 +22,6 @@ static value touchListValue;
 extern void callSetCachedVariablesCallback(value touchCount, value touchList);
 - (void) initializeTouchCapturing
 {
-    NSLog(NSStringFromClass([self class]));
-
     touchList = new NativeTouch[TOUCH_LIST_POOL_SIZE];
 
     touchCountValue = alloc_abstract(k_TouchCount, &touchCount);
@@ -64,8 +62,6 @@ extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
 - (void) dispatchTouches:(NSSet *)touches
 {
     touchCount = touches.count;
-
-    NSLog(@"%@", touches);
 
     int i = 0;
     for (UITouch *touch in touches)

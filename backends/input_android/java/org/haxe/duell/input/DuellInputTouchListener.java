@@ -6,6 +6,7 @@ import java.util.ListIterator;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.util.Log;
 import org.haxe.duell.DuellActivity;
 import org.haxe.duell.input.DuellInputTouch;
 
@@ -46,11 +47,17 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 			synchronized (touches) {
 				if (cancel) { /// cancel everything
 					for (DuellInputTouch touch : touches) {
-						touch.state = 4;
+						touch.cancel();
 					}
 				} else {
 					for (int i = 0; i < ev.getPointerCount(); ++i) {
-						final int id = ev.getPointerId(i);
+
+						int stateForThisTouch = 1;
+						if (i == indexOfAction) {
+							stateForThisTouch = state;
+						}
+
+						final int id = ev.getPointerId(i) + (int)ev.getDownTime();
 
 						DuellInputTouch touchToBeUpdated = null;
 						for (DuellInputTouch touch : touches) {
@@ -59,19 +66,20 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 								break;
 							}
 						}
+
 						if (touchToBeUpdated == null) {
+							if (stateForThisTouch != 0)
+							{
+								continue;/// we don't create a touch when the state is not began
+							}
+
 							touchToBeUpdated = DuellInputTouch.getPooledTouch();
 							touchToBeUpdated.id = id;
 							touches.add(touchToBeUpdated);
 						}
 
-						touchToBeUpdated.x = ev.getX(i);
-						touchToBeUpdated.y = ev.getY(i);
-						if (i == indexOfAction) {
-							touchToBeUpdated.state = state;
-						} else {
-							touchToBeUpdated.state = 1;
-						}
+
+						touchToBeUpdated.pushData(ev.getX(i), ev.getY(i), stateForThisTouch);
 					}
 				}
 			}
@@ -90,16 +98,31 @@ class DuellInputTouchListener implements Runnable, View.OnTouchListener {
 	public void run() {
 
 		synchronized (touches) {
-			DuellInputNativeInterface.startTouchInfoBatch(touches.size());
-			ListIterator<DuellInputTouch> itr = touches.listIterator();
-			while (itr.hasNext()) {
-				final DuellInputTouch touch = itr.next();
 
-				DuellInputNativeInterface.touchInfo(touch.id, touch.x, touch.y, touch.state);
+			boolean pendingFound = true;
 
-				if (touch.state == 3 || touch.state == 4) {
-					itr.remove();
-					DuellInputTouch.recycle(touch);
+			while (pendingFound) {
+				pendingFound = false;
+
+				DuellInputNativeInterface.startTouchInfoBatch(touches.size());
+				ListIterator<DuellInputTouch> itr = touches.listIterator();
+
+				while (itr.hasNext()) {
+
+					final DuellInputTouch touch = itr.next();
+
+					touch.uploadData();
+
+					if (touch.hasPendingData())
+					{
+						pendingFound = true;;
+					}
+
+					if (touch.isFinished())
+					{
+						itr.remove();
+						DuellInputTouch.recycle(touch);
+					}
 				}
 			}
 			pendingQueueProcessing = false;

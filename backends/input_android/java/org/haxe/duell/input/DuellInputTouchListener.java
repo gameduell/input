@@ -1,133 +1,154 @@
 package org.haxe.duell.input;
 
-import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.ListIterator;
-
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
-import android.util.Log;
 import org.haxe.duell.DuellActivity;
-import org.haxe.duell.input.DuellInputTouch;
 
-class DuellInputTouchListener implements Runnable, View.OnTouchListener {
-	private final WeakReference<DuellActivity> activity = new WeakReference(DuellActivity.getInstance());
-	private final LinkedList<DuellInputTouch> touches = new LinkedList();
-	private volatile boolean pendingQueueProcessing = false;
+import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
-	@Override
-	public boolean onTouch(View v, MotionEvent ev) {
-			int state = 0;
-			final int action = ev.getAction();
-			final int indexOfAction = ev.getActionIndex();
-			boolean cancel = false;
+@TargetApi(Build.VERSION_CODES.FROYO)
+class DuellInputTouchListener implements Runnable, View.OnTouchListener
+{
+    private final WeakReference<DuellActivity> activity = new WeakReference<DuellActivity>(DuellActivity.getInstance());
+    private final List<DuellInputTouch> touches = new LinkedList<DuellInputTouch>();
+    private volatile boolean pendingQueueProcessing = false;
 
-			///0 began, 1 moved, 2 stationary, 3 ended, 4 cancelled
-			switch (action & MotionEvent.ACTION_MASK) {
-				case MotionEvent.ACTION_DOWN:
-					state = 0;
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					state = 0;
-					break;
-				case MotionEvent.ACTION_MOVE:
-					state = 1;
-					break;
-				case MotionEvent.ACTION_UP:
-					state = 3;
-					break;
-				case MotionEvent.ACTION_POINTER_UP:
-					state = 3;
-					break;
-				case MotionEvent.ACTION_CANCEL:
-					cancel = true;
-					break;
-			}
+    @Override
+    public boolean onTouch(View v, MotionEvent ev)
+    {
+        int state = 0;
+        final int action = ev.getAction();
+        final int indexOfAction = ev.getActionIndex();
+        boolean cancel = false;
 
-			synchronized (touches) {
-				if (cancel) { /// cancel everything
-					for (DuellInputTouch touch : touches) {
-						touch.cancel();
-					}
-				} else {
-					for (int i = 0; i < ev.getPointerCount(); ++i) {
+        ///0 began, 1 moved, 2 stationary, 3 ended, 4 cancelled
+        switch (action & MotionEvent.ACTION_MASK)
+        {
+            case MotionEvent.ACTION_DOWN:
+                state = 0;
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                state = 0;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                state = 1;
+                break;
+            case MotionEvent.ACTION_UP:
+                state = 3;
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                state = 3;
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                cancel = true;
+                break;
+        }
 
-						int stateForThisTouch = 1;
-						if (i == indexOfAction) {
-							stateForThisTouch = state;
-						}
+        synchronized (touches)
+        {
+            if (cancel)
+            { /// cancel everything
+                for (DuellInputTouch touch : touches)
+                {
+                    touch.cancel();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < ev.getPointerCount(); ++i)
+                {
 
-						final int id = ev.getPointerId(i) + (int)ev.getDownTime();
+                    int stateForThisTouch = 1;
+                    if (i == indexOfAction)
+                    {
+                        stateForThisTouch = state;
+                    }
 
-						DuellInputTouch touchToBeUpdated = null;
-						for (DuellInputTouch touch : touches) {
-							if (touch.id == id) {
-								touchToBeUpdated = touch;
-								break;
-							}
-						}
+                    final int id = ev.getPointerId(i) + (int) ev.getDownTime();
 
-						if (touchToBeUpdated == null) {
-							if (stateForThisTouch != 0)
-							{
-								continue;/// we don't create a touch when the state is not began
-							}
+                    DuellInputTouch touchToBeUpdated = null;
+                    for (DuellInputTouch touch : touches)
+                    {
+                        if (touch.id == id)
+                        {
+                            touchToBeUpdated = touch;
+                            break;
+                        }
+                    }
 
-							touchToBeUpdated = DuellInputTouch.getPooledTouch();
-							touchToBeUpdated.id = id;
-							touches.add(touchToBeUpdated);
-						}
+                    if (touchToBeUpdated == null)
+                    {
+                        if (stateForThisTouch != 0)
+                        {
+                            continue;/// we don't create a touch when the state is not began
+                        }
+
+                        touchToBeUpdated = DuellInputTouch.getPooledTouch();
+                        touchToBeUpdated.id = id;
+                        touches.add(touchToBeUpdated);
+                    }
 
 
-						touchToBeUpdated.pushData(ev.getX(i), ev.getY(i), stateForThisTouch);
-					}
-				}
-			}
+                    touchToBeUpdated.pushData(ev.getX(i), ev.getY(i), stateForThisTouch);
+                }
+            }
+        }
 
-			if (!pendingQueueProcessing) {
-				pendingQueueProcessing = true;
-				DuellActivity activityLocal = activity.get();
-				if(activityLocal != null) {
-					activityLocal.queueOnHaxeThread(this);
-				}
-			}
-		return true;
-	}
+        if (!pendingQueueProcessing)
+        {
+            pendingQueueProcessing = true;
+            DuellActivity activityLocal = activity.get();
+            if (activityLocal != null)
+            {
+                activityLocal.queueOnHaxeThread(this);
+            }
+        }
+        return true;
+    }
 
-	@Override
-	public void run() {
+    @Override
+    public void run()
+    {
 
-		synchronized (touches) {
+        synchronized (touches)
+        {
 
-			boolean pendingFound = true;
+            boolean pendingFound = true;
 
-			while (pendingFound) {
-				pendingFound = false;
+            while (pendingFound)
+            {
+                pendingFound = false;
 
-				DuellInputNativeInterface.startTouchInfoBatch(touches.size());
-				ListIterator<DuellInputTouch> itr = touches.listIterator();
+                DuellInputNativeInterface.startTouchInfoBatch(touches.size());
+                ListIterator<DuellInputTouch> itr = touches.listIterator();
 
-				while (itr.hasNext()) {
+                while (itr.hasNext())
+                {
 
-					final DuellInputTouch touch = itr.next();
+                    final DuellInputTouch touch = itr.next();
 
-					touch.uploadData();
+                    touch.uploadData();
 
-					if (touch.hasPendingData())
-					{
-						pendingFound = true;;
-					}
+                    if (touch.hasPendingData())
+                    {
+                        pendingFound = true;
+                    }
 
-					if (touch.isFinished())
-					{
-						itr.remove();
-						DuellInputTouch.recycle(touch);
-					}
-				}
-			}
-			pendingQueueProcessing = false;
-		}
-	}
+                    if (touch.isFinished())
+                    {
+                        itr.remove();
+                        DuellInputTouch.recycle(touch);
+                    }
+                }
+            }
+            pendingQueueProcessing = false;
+        }
+    }
 
 
 }

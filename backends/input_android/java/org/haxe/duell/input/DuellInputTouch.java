@@ -1,161 +1,186 @@
 package org.haxe.duell.input;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+class DuellInputTouch
+{
 
-class DuellInputTouch {
+    /// ========
+    /// DUELL INPUT TOUCH DATA POOL
 
-	/// ========
-	/// DUELL INPUT TOUCH DATA POOL
+    static class DuellInputTouchData
+    {
+        public float x;
+        public float y;
+        public int state;
 
-	static class DuellInputTouchData {
-		public float x;
-		public float y;
-		public int state;
+        private static final Deque<DuellInputTouchData> poolAvailable = new ArrayDeque<DuellInputTouchData>();
 
-		private static final Deque<DuellInputTouchData> poolAvailable = new ArrayDeque();
-		public static DuellInputTouchData getPooledTouch() {
-			DuellInputTouchData po;
-			if (!poolAvailable.isEmpty()) {
-				po = poolAvailable.removeFirst();
-			} else {
-				po = new DuellInputTouchData();
-			}
-			return po;
-		}
+        public static DuellInputTouchData getPooledTouch()
+        {
+            DuellInputTouchData po;
+            if (!poolAvailable.isEmpty())
+            {
+                po = poolAvailable.removeFirst();
+            }
+            else
+            {
+                po = new DuellInputTouchData();
+            }
+            return po;
+        }
 
-		public static void recycle(DuellInputTouchData po) {
-			poolAvailable.addLast(po);
-		}
-	}
+        public static void recycle(DuellInputTouchData po)
+        {
+            poolAvailable.addLast(po);
+        }
+    }
 
-	/// DUELL INPUT TOUCH DATA POOL
-	/// ========
+    /// DUELL INPUT TOUCH DATA POOL
+    /// ========
 
-	/// ========
-	/// DUELL INPUT TOUCH POOL
+    /// ========
+    /// DUELL INPUT TOUCH POOL
 
-	private static final Deque<DuellInputTouch> poolAvailable = new ArrayDeque();
-	public static DuellInputTouch getPooledTouch() {
-		DuellInputTouch po;
-		if (!poolAvailable.isEmpty()) {
-			po = poolAvailable.removeFirst();
-		} else {
-			po = new DuellInputTouch();
-		}
-		return po;
-	}
-	
-	public static void recycle(DuellInputTouch po) {
+    private static final Deque<DuellInputTouch> poolAvailable = new ArrayDeque<DuellInputTouch>();
 
-		if (po.lastDataUploaded != null)
-		{
-			DuellInputTouchData.recycle(po.lastDataUploaded);
-			po.lastDataUploaded = null;
-		}
+    public static DuellInputTouch getPooledTouch()
+    {
+        DuellInputTouch po;
+        if (!poolAvailable.isEmpty())
+        {
+            po = poolAvailable.removeFirst();
+        }
+        else
+        {
+            po = new DuellInputTouch();
+        }
+        return po;
+    }
 
-		for (DuellInputTouchData d : po.pendingData) {
-			DuellInputTouchData.recycle(d);
-		}
+    public static void recycle(DuellInputTouch po)
+    {
 
-		po.pendingData.clear();
+        if (po.lastDataUploaded != null)
+        {
+            DuellInputTouchData.recycle(po.lastDataUploaded);
+            po.lastDataUploaded = null;
+        }
 
-		poolAvailable.addLast(po);
-	}
+        for (DuellInputTouchData d : po.pendingData)
+        {
+            DuellInputTouchData.recycle(d);
+        }
 
-	/// DUELL INPUT TOUCH POOL
-	/// ========
+        po.pendingData.clear();
 
-	public int id;
+        poolAvailable.addLast(po);
+    }
 
-	private DuellInputTouchData lastDataUploaded = null;
-	private Deque<DuellInputTouchData> pendingData = new ArrayDeque();
+    /// DUELL INPUT TOUCH POOL
+    /// ========
 
-	public void pushData(float x, float y, int newState) {
+    public int id;
 
-		int latestState = -1;
+    private DuellInputTouchData lastDataUploaded = null;
+    private Deque<DuellInputTouchData> pendingData = new ArrayDeque<DuellInputTouchData>();
 
-		if (!pendingData.isEmpty())
-		{
-			latestState = pendingData.getLast().state;
-		}
-		else if (lastDataUploaded != null)
-		{
-			latestState = lastDataUploaded.state;
-		}
+    public void pushData(float x, float y, int newState)
+    {
 
-		if (latestState == -1 && newState != 0)
-		{
-			/// this is actually not needed because it needs to be checked from the outside
-			return; /// can only go from undefined to began
-		}
+        int latestState = -1;
 
-		if (latestState == 3 || latestState == 4)
-		{
-			return; /// once it ends, it ends forever, no need for more updates
-		}
+        if (!pendingData.isEmpty())
+        {
+            latestState = pendingData.getLast().state;
+        }
+        else if (lastDataUploaded != null)
+        {
+            latestState = lastDataUploaded.state;
+        }
 
-		if (latestState == 1 && newState < latestState)
-		{
-			return; /// cannot go from moved to began or undefined
-		}
+        if (latestState == -1 && newState != 0)
+        {
+            /// this is actually not needed because it needs to be checked from the outside
+            return; /// can only go from undefined to began
+        }
 
-		if (latestState == 0 && newState == 0)
-		{
-			return; /// only one began allowed
-		}
-		
-		DuellInputTouchData d = DuellInputTouchData.getPooledTouch();
+        if (latestState == 3 || latestState == 4)
+        {
+            return; /// once it ends, it ends forever, no need for more updates
+        }
 
-		d.x = x;
-		d.y = y;
-		d.state = newState;
+        if (latestState == 1 && newState < latestState)
+        {
+            return; /// cannot go from moved to began or undefined
+        }
 
-		pendingData.addLast(d);
-	}
+        if (latestState == 0 && newState == 0)
+        {
+            return; /// only one began allowed
+        }
 
-	public boolean isFinished() {
+        DuellInputTouchData d = DuellInputTouchData.getPooledTouch();
 
-		return lastDataUploaded.state == 3 || lastDataUploaded.state == 4;
-	}
+        d.x = x;
+        d.y = y;
+        d.state = newState;
 
-	public void cancel() {
+        pendingData.addLast(d);
+    }
 
-		for (DuellInputTouchData d : pendingData) {
-			DuellInputTouchData.recycle(d);
-		}
+    public boolean isFinished()
+    {
 
-		pendingData.clear();
+        return lastDataUploaded.state == 3 || lastDataUploaded.state == 4;
+    }
 
-		pushData(0, 0, 4); /// force cancel
-	}
+    public void cancel()
+    {
 
-	public boolean hasPendingData() {
+        for (DuellInputTouchData d : pendingData)
+        {
+            DuellInputTouchData.recycle(d);
+        }
 
-		return !pendingData.isEmpty();
-	}
+        pendingData.clear();
 
-	public void uploadData() {
+        pushData(0, 0, 4); /// force cancel
+    }
 
-		if (hasPendingData()) {
+    public boolean hasPendingData()
+    {
 
-			DuellInputTouchData d = pendingData.removeFirst();
-			DuellInputNativeInterface.touchInfo(id, d.x, d.y, d.state);
+        return !pendingData.isEmpty();
+    }
 
-			if (lastDataUploaded != null)
-			{
-				DuellInputTouchData.recycle(lastDataUploaded);
-			}
+    public void uploadData()
+    {
 
-			lastDataUploaded = d;
-		}
-		else
-		{
-			/// this only happens when one touch had pending, and we have to send all of them.
-			/// we send as moved in this case
+        if (hasPendingData())
+        {
 
-			DuellInputNativeInterface.touchInfo(id, lastDataUploaded.x, lastDataUploaded.y, 1);
-		}
-	}
+            DuellInputTouchData d = pendingData.removeFirst();
+            DuellInputNativeInterface.touchInfo(id, d.x, d.y, d.state);
+
+            if (lastDataUploaded != null)
+            {
+                DuellInputTouchData.recycle(lastDataUploaded);
+            }
+
+            lastDataUploaded = d;
+        }
+        else
+        {
+            /// this only happens when one touch had pending, and we have to send all of them.
+            /// we send as moved in this case
+
+            DuellInputNativeInterface.touchInfo(id, lastDataUploaded.x, lastDataUploaded.y, 1);
+        }
+    }
 }

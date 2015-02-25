@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library>
-	<haxelib name="polygonal-ds" version="1.4.1" />
+	<haxelib name="polygonal-ds" />
 
     <platform-config>
     	<html5>

@@ -49,20 +49,20 @@ class MouseManager
 
 	public static function initialize(finishedCallback : Void -> Void) : Void
 	{
-		mouseInstance = new MouseManager();		
+		mouseInstance = new MouseManager();
 
 		mouseInstance.initializeCallbacks(finishedCallback);
 	}
 
 	private function initializeCallbacks(finishedCallback : Void -> Void)
 	{
-		jquery.ready(function(e):Void
-        {
+			jquery.ready(function(e):Void
+      {
             jquery.mousedown(function(e:Dynamic){
             	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
             	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-            });
+      });
 
 			jquery.mousemove(function(e) : Void
 			{
@@ -73,12 +73,12 @@ class MouseManager
 				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
 			});
 
-            jquery.mouseup(function(e:Dynamic)
+      jquery.mouseup(function(e:Dynamic)
 			{
             	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
             	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-            });
+      });
 
 			jquery.click(function(e:Dynamic)
 			{
@@ -95,17 +95,17 @@ class MouseManager
 			});
 
 			/// Mousewheel Events
-			if (untyped Browser.window.addEventListener) 
+			if (untyped Browser.window.addEventListener)
 			{
 				// IE9, Chrome, Safari, Opera
 				untyped Browser.window.addEventListener("mousewheel", mouseWheelHandler, false);
 				// Firefox
 				untyped Browser.window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 			}
-			else 
+			else
 			{	// IE 6/7/8
-				untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);		
-			}	   
+				untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);
+			}
 
 			finishedCallback();
 		});
@@ -113,8 +113,6 @@ class MouseManager
 
 	private function mouseWheelHandler(e: Dynamic): Void
 	{
-		e.preventDefault();
-
 		var wheelDelta: Float = 0.0;
 
 		if(untyped Browser.window.event)
@@ -136,4 +134,3 @@ class MouseManager
 		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 	}
 }
-

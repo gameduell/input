@@ -1,6 +1,6 @@
 package input;
 
-import msignal.Signal.Signal1;
+import msignal.Signal;
 
 class Keyboard
 {

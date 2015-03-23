@@ -2,18 +2,25 @@ package org.haxe.duell.input;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import org.haxe.duell.DuellActivity;
 import org.haxe.duell.Extension;
+import org.haxe.duell.input.keyboard.KeyboardView;
+import org.haxe.duell.input.keyboard.ManagedKeyboardViewer;
 
 import java.lang.ref.WeakReference;
 
-public class DuellInputActivityExtension extends Extension
+public class DuellInputActivityExtension extends Extension implements ManagedKeyboardViewer
 {
 
-    private static WeakReference<DuellInputActivityExtension> extension = new WeakReference<DuellInputActivityExtension>(null);
+    public static WeakReference<DuellInputActivityExtension> extension = new WeakReference<DuellInputActivityExtension>(null);
 
     private WeakReference<View> currentView = new WeakReference<View>(null);
+
+    private KeyboardView managedKeyboardView;
+    private KeyboardView defaultKeyboardView;
 
     public static void initialize()
     {
@@ -34,6 +41,8 @@ public class DuellInputActivityExtension extends Extension
 
         currentView.setOnTouchListener(new DuellInputTouchListener());
         extension.get().currentView = new WeakReference<View>(currentView);
+
+        extension.get().initializeKeyboardHandling();
     }
 
     /**
@@ -157,5 +166,46 @@ public class DuellInputActivityExtension extends Extension
 
     }
 
+    private void initializeKeyboardHandling() {
+        defaultKeyboardView = new KeyboardView(DuellActivity.getInstance());
+        managedKeyboardView = defaultKeyboardView;
+    }
 
+    @Override
+    public void setManagedKeyboardView(final KeyboardView _keyboardView) {
+        final ViewGroup parent = DuellActivity.getInstance().parent;
+
+        DuellActivity.getInstance().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                parent.removeView(managedKeyboardView);
+
+                if (_keyboardView != null)
+                {
+                    managedKeyboardView = _keyboardView;
+                    parent.addView(managedKeyboardView);
+                }
+                else
+                {
+                    managedKeyboardView = defaultKeyboardView;
+                }
+
+                managedKeyboardView.setText("");
+            }
+        });
+    }
+
+    @Override
+    public void onKeyDown(int keyCode, KeyEvent event)
+    {
+        managedKeyboardView.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onKeyUp(int keyCode, KeyEvent event)
+    {
+        managedKeyboardView.onKeyUp(keyCode, event);
+    }
 }

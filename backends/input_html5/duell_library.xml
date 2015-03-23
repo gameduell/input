@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<library>
+<library xmlns="duell">
 	<haxelib name="polygonal-ds" version="1.4.1" />
 
     <platform-config>

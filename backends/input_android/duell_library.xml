@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<library>
+<library xmlns="duell">
+
+    <supported-build-plugin name="android" version="2.0.0+" />
+
     <ndll name="inputandroid" build-file-path="project/Build.xml" bin-path="ndll" /> 
 
     <duelllib name="hxjni"  version="1.0.0+"/>

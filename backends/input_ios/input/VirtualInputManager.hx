@@ -34,12 +34,12 @@ class VirtualInputManager
         }
     }
 
-    public static function show(): Void
+    public function show(): Void
     {
         // TODO show
     }
 
-    public static function hide(): Void
+    public function hide(): Void
     {
         // TODO hide
     }

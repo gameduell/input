@@ -1,5 +1,7 @@
 package input;
 
+import input.util.CharSet;
+
 @:access(input.VirtualInput)
 class VirtualInputManager
 {
@@ -8,7 +10,7 @@ class VirtualInputManager
 
     private function new()
     {
-        mainKeyboard = new VirtualInput();
+        mainKeyboard = new VirtualInput(CharSet.englishCharCodeSet());
     }
 
     public static inline function instance(): VirtualInputManager

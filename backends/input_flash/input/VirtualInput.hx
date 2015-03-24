@@ -1,6 +1,10 @@
 package input;
 
+import input.util.KeyboardInputProcessor;
+import haxe.ds.Vector;
 import msignal.Signal;
+
+using input.util.VectorUtils;
 
 class VirtualInput
 {
@@ -10,20 +14,59 @@ class VirtualInput
 
     public var string(default, set): String;
 
-    public function new()
+    public var allowedCharCodes(null, set): Vector<Bool>;
+
+    private var inputAllowed: Bool;
+
+    private function new(charCodes: Vector<Bool>)
     {
         onInputStarted = new Signal0();
         onInputEnded = new Signal0();
         onTextChanged = new Signal1();
 
         string = "";
+        allowedCharCodes = charCodes;
+        inputAllowed = false;
 
-        // TODO bind input processor
+        KeyboardManager.instance().getMainKeyboard().onKeyboardEvent.add(function(data: KeyboardEventData): Void
+        {
+            if (inputAllowed)
+            {
+                KeyboardInputProcessor.process(string, data, allowedCharCodes, set_string);
+            }
+        });
+    }
+
+    private function show(): Void
+    {
+        inputAllowed = true;
+
+        onInputStarted.dispatch();
+    }
+
+    private function hide(): Void
+    {
+        inputAllowed = false;
+
+        onInputEnded.dispatch();
     }
 
     private function set_string(value: String): String
     {
-        // TODO
+        onTextChanged.dispatch(value);
+
         return string = value;
+    }
+
+    private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>
+    {
+        if (value.length != 256)
+        {
+            throw 'Invalid vector length for allowed char codes ${value.length}';
+        }
+
+        allowedCharCodes = value.copy();
+
+        return value;
     }
 }

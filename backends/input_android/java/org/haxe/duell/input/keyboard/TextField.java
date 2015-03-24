@@ -41,23 +41,13 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
 
         text = "";
         validCharacters = new BitSet(256);
-
-        // XXX should be replaced with a better way of setting this (from the font)
-        configureLatinValidCharacters();
     }
 
-    private void configureLatinValidCharacters()
+    public void setAllowedCharCodes(boolean[] charCodes)
     {
-        validCharacters.set(' ');
-
-        for (int i = 'A'; i <= 'Z'; i++)
+        for (int i = 0; i < 256; i++)
         {
-            validCharacters.set(i);
-        }
-
-        for (int i = 'a'; i <= 'z'; i++)
-        {
-            validCharacters.set(i);
+            validCharacters.set(i, charCodes[i]);
         }
     }
 

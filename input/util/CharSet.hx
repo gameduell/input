@@ -11,6 +11,9 @@ import haxe.ds.Vector;
  */
 @:final class CharSet
 {
+    /**
+        Returns the english letters char code set, with [A-Za-z] and spaces enabled.
+     */
     public static function englishCharCodeSet(): Vector<Bool>
     {
         var set: Vector<Bool> = new Vector(256);

@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) 2003-2015 GameDuell GmbH, All Rights Reserved
+ * This document is strictly confidential and sole property of GameDuell GmbH, Berlin, Germany
+ */
 package input;
 
 import cpp.Lib;
 import haxe.ds.Vector;
 import msignal.Signal;
 
+/**
+    @author jxav
+ */
 class VirtualInput
 {
     private static var initializeNative = Lib.load("input_ios", "input_ios_text_create_textfieldwrapper", 2);

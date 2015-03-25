@@ -12,6 +12,12 @@ import input.KeyboardEventData;
  */
 @:final class KeyboardInputProcessor
 {
+    /**
+        Processes the string input on `string` using the keyboard event data encoded in `data`, restricting the input
+        according to the flags specified in `allowedCharCodes`.
+
+        Returns the final input to `callback`.
+     */
     public static inline function process(string: String, data: KeyboardEventData, allowedCharCodes: Vector<Bool>, callback: String -> Void): Void
     {
         if (data.state == KeyState.Up)

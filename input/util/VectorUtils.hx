@@ -11,6 +11,9 @@ import haxe.ds.Vector;
  */
 @:final class VectorUtils
 {
+    /**
+        Returns a shallow copy of `src`.
+     */
     @:generic
     public static function copy<T>(src: Vector<T>): Vector<T>
     {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2003-2015 GameDuell GmbH, All Rights Reserved
+ * This document is strictly confidential and sole property of GameDuell GmbH, Berlin, Germany
+ */
 package input;
 
 import input.util.KeyboardInputProcessor;
@@ -6,6 +10,9 @@ import msignal.Signal;
 
 using input.util.VectorUtils;
 
+/**
+    @author jxav
+ */
 class VirtualInput
 {
     public var onInputStarted(default, null): Signal0;

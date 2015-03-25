@@ -60,9 +60,14 @@ class VirtualInput
 
     private function set_string(value: String): String
     {
-        onTextChanged.dispatch(value);
+        if (value != string)
+        {
+            onTextChanged.dispatch(value);
 
-        return string = value;
+            string = value;
+        }
+
+        return value;
     }
 
     private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>

@@ -17,13 +17,13 @@ class VirtualInput
     private static var showKeyboardNative = Lib.load("input_ios", "input_ios_text_show_keyboard", 1);
     private static var hideKeyboardNative = Lib.load("input_ios", "input_ios_text_hide_keyboard", 1);
     private static var setAllowedCharCodesNative = Lib.load("input_ios", "input_ios_text_set_allowed_char_codes", 2);
-    private static var setStringNative = Lib.load("input_ios", "input_ios_text_set_string", 2);
+    private static var setTextNative = Lib.load("input_ios", "input_ios_text_set_text", 2);
 
     public var onInputStarted(default, null): Signal0;
     public var onInputEnded(default, null): Signal0;
     public var onTextChanged(default, null): Signal1<String>;
 
-    public var string(default, set): String;
+    public var text(default, set): String;
 
     public var allowedCharCodes(never, set): Vector<Bool>;
 
@@ -35,9 +35,9 @@ class VirtualInput
         onInputEnded = new Signal0();
         onTextChanged = new Signal1();
 
-        obj = initializeNative(onInputEnded.dispatch, set_string);
+        obj = initializeNative(onInputEnded.dispatch, set_text);
 
-        string = "";
+        text = "";
         allowedCharCodes = charCodes;
     }
 
@@ -53,13 +53,13 @@ class VirtualInput
         hideKeyboardNative(obj);
     }
 
-    private function set_string(value: String): String
+    private function set_text(value: String): String
     {
-        if (string != value)
+        if (text != value)
         {
-            setStringNative(obj, value);
+            setTextNative(obj, value);
 
-            string = value;
+            text = value;
 
             onTextChanged.dispatch(value);
         }

@@ -22,7 +22,8 @@ import java.lang.ref.WeakReference;
  * @author jxav
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class KeyboardView extends EditText {
+public class KeyboardView extends EditText
+{
 
     private WeakReference<KeyboardViewDelegate> delegate;
     private boolean isShowing;

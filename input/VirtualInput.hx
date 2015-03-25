@@ -29,7 +29,7 @@ extern class VirtualInput
     /**
         Current string on the input buffer. Can be reset by clients.
      */
-    public var string(default, set): String;
+    public var text(default, set): String;
 
     /**
         The allowed char codes in this virtual input. Must be a 256-length `Vector`.

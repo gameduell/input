@@ -17,8 +17,8 @@ class VirtualInput
     "init", "(Lorg/haxe/duell/hxjni/HaxeObject;)Lorg/haxe/duell/input/keyboard/TextField;");
     private static var showNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "show", "()V");
     private static var hideNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "hide", "()V");
-    private static var setStringNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
-    "setString", "(Ljava/lang/String;)V");
+    private static var setTextNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
+    "setText", "(Ljava/lang/String;)V");
     private static var setAllowedCharCodesNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
     "setAllowedCharCodes", "([Z)V");
 
@@ -28,7 +28,7 @@ class VirtualInput
     public var onInputEnded(default, null): Signal0;
     public var onTextChanged(default, null): Signal1<String>;
 
-    public var string(default, set): String;
+    public var text(default, set): String;
 
     public var allowedCharCodes(never, set): Vector<Bool>;
 
@@ -40,7 +40,7 @@ class VirtualInput
 
         javaObj = initNative(this);
 
-        string = "";
+        text = "";
         allowedCharCodes = charCodes;
     }
 
@@ -66,16 +66,16 @@ class VirtualInput
 
     public function onTextChangedCallback(data: Dynamic)
     {
-        string = data;
+        text = data;
     }
 
-    private function set_string(value: String): String
+    private function set_text(value: String): String
     {
-        if (string != value)
+        if (text != value)
         {
-            setStringNative(javaObj, value);
+            setTextNative(javaObj, value);
 
-            string = value;
+            text = value;
 
             onTextChanged.dispatch(value);
         }

@@ -23,10 +23,10 @@ import input.KeyboardEventData;
         if (data.state == KeyState.Up)
         {
             var keyCode: Int = data.keyCode;
-            var shiftPressed: Bool = data.shiftKeyPressed != data.capsKeyPressed;
+            var isUpper: Bool = data.shiftKeyPressed != data.capsKeyPressed;
 
             // apply shift modifications to the keycode to make it properly lower- or upper-case
-            keyCode = modifyKey(shiftPressed, keyCode);
+            keyCode = modifyKey(isUpper, keyCode);
 
             if (keyIsBackspace(keyCode))
             {
@@ -49,9 +49,9 @@ import input.KeyboardEventData;
         return keyCode == 8;
     }
 
-    private static inline function modifyKey(shiftPressed: Bool, keyCode: Int): Int
+    private static inline function modifyKey(isUpper: Bool, keyCode: Int): Int
     {
-        if ((keyCode >= 65 && keyCode <= 90) && !shiftPressed)
+        if ((keyCode >= 65 && keyCode <= 90) && !isUpper)
         {
             // 65 is 'A', 97 is 'a'
             return keyCode + 32;

@@ -143,7 +143,7 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         }
     }
 
-    public void setString(final String s)
+    public void setText(final String s)
     {
         text = s;
 

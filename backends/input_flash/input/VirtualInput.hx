@@ -19,7 +19,7 @@ class VirtualInput
     public var onInputEnded(default, null): Signal0;
     public var onTextChanged(default, null): Signal1<String>;
 
-    public var string(default, set): String;
+    public var text(default, set): String;
 
     public var allowedCharCodes(null, set): Vector<Bool>;
 
@@ -31,7 +31,7 @@ class VirtualInput
         onInputEnded = new Signal0();
         onTextChanged = new Signal1();
 
-        string = "";
+        text = "";
         allowedCharCodes = charCodes;
         inputAllowed = false;
 
@@ -39,7 +39,7 @@ class VirtualInput
         {
             if (inputAllowed)
             {
-                KeyboardInputProcessor.process(string, data, allowedCharCodes, set_string);
+                KeyboardInputProcessor.process(text, data, allowedCharCodes, set_text);
             }
         });
     }
@@ -58,13 +58,13 @@ class VirtualInput
         onInputEnded.dispatch();
     }
 
-    private function set_string(value: String): String
+    private function set_text(value: String): String
     {
-        if (value != string)
+        if (value != text)
         {
-            onTextChanged.dispatch(value);
+            text = value;
 
-            string = value;
+            onTextChanged.dispatch(value);
         }
 
         return value;

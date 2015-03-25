@@ -163,11 +163,11 @@
 {
     text = [self removeNotSupportedCharactersFromString:text];
 
-    if( [self hasInputTextChanged:text])
+    if ([self hasInputTextChanged:text])
     {
         [self appendInsertedText:text];
 
-        if( [self.delegate respondsToSelector:@selector(editableTextFieldDidChangeText:)])
+        if ([self.delegate respondsToSelector:@selector(editableTextFieldDidChangeText:)])
         {
             [self.delegate editableTextFieldDidChangeText:self.string];
         }

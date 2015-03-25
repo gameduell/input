@@ -12,9 +12,6 @@ class TextFieldWrapper
 	    UTKEditableTextField* textField;
         TextFieldListener* listener;
 
-	    void showKeyboard();
-	    void hideKeyboard();
-
 		static value createHaxePointer();
 
 		~TextFieldWrapper();

@@ -24,16 +24,6 @@ value TextFieldWrapper::createHaxePointer()
 	return v;
 }
 
-void TextFieldWrapper::hideKeyboard()
-{
-    [textField hideKeyboard];
-}
-
-void TextFieldWrapper::showKeyboard()
-{
-    [textField showKeyboard];
-}
-
 TextFieldWrapper::~TextFieldWrapper()
 {
 	textField = nil;
@@ -73,6 +63,7 @@ static value input_ios_text_create_textfieldwrapper(value hideKeyboardCallback, 
 	value hxWrapper = TextFieldWrapper::createHaxePointer();
 	TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
     wrapper->textField = field;
+    wrapper->listener = listener;
 
 	return hxWrapper;
 }
@@ -82,7 +73,9 @@ DEFINE_PRIM (input_ios_text_create_textfieldwrapper, 2);
 static value input_ios_text_show_keyboard(value hxWrapper)
 {
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
-    wrapper->showKeyboard();
+    UTKEditableTextField *textField = wrapper->textField;
+
+    [textField showKeyboard];
 
 	return alloc_null();
 }
@@ -92,7 +85,9 @@ DEFINE_PRIM (input_ios_text_show_keyboard, 1);
 static value input_ios_text_hide_keyboard(value hxWrapper)
 {
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
-    wrapper->hideKeyboard();
+    UTKEditableTextField *textField = wrapper->textField;
+
+    [textField hideKeyboard];
 
 	return alloc_null();
 }
@@ -126,15 +121,14 @@ static value input_ios_text_set_allowed_char_codes(value hxWrapper, value validC
 DEFINE_PRIM (input_ios_text_set_allowed_char_codes, 2);
 
 
-static value input_ios_text_set_string(value hxWrapper, value hxString)
+static value input_ios_text_set_text(value hxWrapper, value hxString)
 {
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
     UTKEditableTextField *textField = wrapper->textField;
 
     NSString *string = [NSString stringWithCString:val_get_string(hxString) encoding:NSUTF8StringEncoding];
-
     textField.string = string;
 
 	return alloc_null();
 }
-DEFINE_PRIM (input_ios_text_set_string, 2);
+DEFINE_PRIM (input_ios_text_set_text, 2);

@@ -10,7 +10,9 @@
 		<file name="src/ExternalInterface.mm"/>
         <file name="src/DUELLGestureRecognizer.mm"/>
         <file name="src/NativeTouch.cpp"/>
-		
+		<file name="src/UTKEditableTextField.m" />
+        <file name="src/TextFieldListener.m" />
+        <file name="src/TextFieldInterface.mm" />
 	</files>
 
 	

@@ -1,32 +1,26 @@
 package input;
 
+import input.util.CharSet;
+
 @:access(input.VirtualInput)
 class VirtualInputManager
 {
-	private static var keyboardInstance: VirtualInputManager;
+    private static var keyboardInstance: VirtualInputManager;
+    private var mainKeyboard: VirtualInput;
 
-	private var mainKeyboard: VirtualInput;
-
-	private function new()
-	{
-		mainKeyboard = new VirtualInput();
-	}
-
-	public static inline function instance(): VirtualInputManager
-	{
-		return keyboardInstance;
-	}
-
-    public function getVirtualKeyboard(): VirtualInput
+    private function new()
     {
-		return mainKeyboard;
-	}
+        mainKeyboard = new VirtualInput(CharSet.englishCharCodeSet());
+    }
+
+    public static inline function instance(): VirtualInputManager
+    {
+        return keyboardInstance;
+    }
 
     public static function initialize(finishedCallback: Void -> Void): Void
     {
         keyboardInstance = new VirtualInputManager();
-
-        // TODO callback
 
         if (finishedCallback != null)
         {
@@ -34,13 +28,18 @@ class VirtualInputManager
         }
     }
 
+    public function getVirtualKeyboard(): VirtualInput
+    {
+        return mainKeyboard;
+    }
+
     public function show(): Void
     {
-        // TODO show
+        mainKeyboard.show();
     }
 
     public function hide(): Void
     {
-        // TODO hide
+        mainKeyboard.hide();
     }
 }

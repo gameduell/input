@@ -47,13 +47,6 @@ class VirtualInput
         hideNative(javaObj);
     }
 
-    public function onTextChangedCallback(data: Dynamic)
-    {
-        string = data;
-
-        onTextChanged.dispatch(string);
-    }
-
     public function onInputStartedCallback()
     {
         onInputStarted.dispatch();
@@ -64,10 +57,23 @@ class VirtualInput
         onInputEnded.dispatch();
     }
 
-    public function set_string(value: String): String
+    public function onTextChangedCallback(data: Dynamic)
     {
-        setStringNative(javaObj, value);
-        return string = value;
+        string = data;
+    }
+
+    private function set_string(value: String): String
+    {
+        if (string != value)
+        {
+            setStringNative(javaObj, value);
+
+            string = value;
+
+            onTextChanged.dispatch(value);
+        }
+
+        return value;
     }
 
     private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>

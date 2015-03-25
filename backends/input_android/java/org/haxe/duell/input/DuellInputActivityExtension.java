@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2003-2015 GameDuell GmbH, All Rights Reserved
+ * This document is strictly confidential and sole property of GameDuell GmbH, Berlin, Germany
+ */
 package org.haxe.duell.input;
 
 import android.content.Intent;
@@ -42,6 +46,7 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
         currentView.setOnTouchListener(new DuellInputTouchListener());
         extension.get().currentView = new WeakReference<View>(currentView);
 
+        // init keyboard handling
         extension.get().initializeKeyboardHandling();
     }
 
@@ -166,13 +171,20 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
 
     }
 
-    private void initializeKeyboardHandling() {
+    //
+    // Keyboard handling
+    //
+
+    private void initializeKeyboardHandling()
+    {
+        // use a default keyboard so that no NPE is thrown
         defaultKeyboardView = new KeyboardView(DuellActivity.getInstance());
         managedKeyboardView = defaultKeyboardView;
     }
 
     @Override
-    public void setManagedKeyboardView(final KeyboardView _keyboardView) {
+    public void setManagedKeyboardView(final KeyboardView _keyboardView)
+    {
         final ViewGroup parent = DuellActivity.getInstance().parent;
 
         DuellActivity.getInstance().runOnUiThread(new Runnable()

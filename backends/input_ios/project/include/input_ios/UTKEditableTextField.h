@@ -17,6 +17,7 @@
 
 @optional
 - (BOOL)editableTextFieldWillChangeText:(NSString *)text;
+// callback for keyboard hiding
 - (void)keyboardViewDidHide;
 
 @end

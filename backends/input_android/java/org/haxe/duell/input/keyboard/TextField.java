@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2003-2015 GameDuell GmbH, All Rights Reserved
+ * This document is strictly confidential and sole property of GameDuell GmbH, Berlin, Germany
+ */
 package org.haxe.duell.input.keyboard;
 
 import android.text.Editable;
@@ -86,28 +90,35 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
     public void onTextChanged(CharSequence s, int start, int before, int count)
     {
         // event was flagged as eaten, don't execute logic
-        if (eatEvent) {
+        if (eatEvent)
+        {
             return;
         }
 
         String string = text;
 
-        if (string.length() > s.length()) {
+        if (string.length() > s.length())
+        {
             // keyboardViewDidDeleteBackward
             string = s.toString();
-        } else if (string.length() < s.length()) {
+        }
+        else if (string.length() < s.length())
+        {
             // keyboardViewDidInsertText
             string = s.toString();
             String processedText = string;
 
-            for (int i = 0; i < string.length(); i++) {
-                if (!validCharacters.get(string.charAt(i))) {
+            for (int i = 0; i < string.length(); i++)
+            {
+                if (!validCharacters.get(string.charAt(i)))
+                {
                     // force event to be eaten, as this method will execute again
                     eatEvent = true;
                     processedText = processedText.replaceAll(Pattern.quote("" + string.charAt(i)), "");
                 }
 
-                if (eatEvent) {
+                if (eatEvent)
+                {
                     // set the text back and update the keyboard view
                     string = processedText;
 
@@ -126,7 +137,8 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
     @Override
     public void afterTextChanged(Editable s)
     {
-        if (eatEvent) {
+        if (eatEvent)
+        {
             eatEvent = false;
         }
     }

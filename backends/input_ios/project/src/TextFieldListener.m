@@ -38,6 +38,7 @@
 
 - (BOOL)editableTextFieldWillChangeText:(NSString *)text
 {
+    // needed for the logic to execute properly
     return YES;
 }
 

@@ -50,8 +50,10 @@ static value input_ios_text_create_textfieldwrapper(value hideKeyboardCallback, 
     UIView *view = [UIApplication sharedApplication].keyWindow.rootViewController.view;
 
     UTKEditableTextField *field = [[UTKEditableTextField alloc] init];
+    // has to be attached to the UIView once
     [field attachToView:view];
 
+    // the listener should be forwarding the block calls to haxe code
     TextFieldListener *listener = [[TextFieldListener alloc] init];
     listener.onInputEnded = ^
     {
@@ -65,12 +67,12 @@ static value input_ios_text_create_textfieldwrapper(value hideKeyboardCallback, 
         val_call1(textChangedCallback, haxeString);
     };
 
+    // set the listener as delegate
     field.delegate = listener;
 
 	value hxWrapper = TextFieldWrapper::createHaxePointer();
 	TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
     wrapper->textField = field;
-    wrapper->listener = listener;
 
 	return hxWrapper;
 }

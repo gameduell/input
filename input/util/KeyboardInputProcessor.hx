@@ -25,6 +25,7 @@ import input.KeyboardEventData;
             var keyCode: Int = data.keyCode;
             var shiftPressed: Bool = data.shiftKeyPressed != data.capsKeyPressed;
 
+            // apply shift modifications to the keycode to make it properly lower- or upper-case
             keyCode = modifyKey(shiftPressed, keyCode);
 
             if (keyIsBackspace(keyCode))

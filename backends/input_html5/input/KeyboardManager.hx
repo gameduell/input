@@ -55,10 +55,11 @@ class KeyboardManager
 
 			jquery.keyup(function(e:Dynamic)
 			{
-				keyboardEventData.keyCode = e.keyCode;
+				keyboardEventData.keyCode = e.which;
 				keyboardEventData.shiftKeyPressed = e.shiftKey;
 				keyboardEventData.ctrlKeyPressed = e.ctrlKey;
 				keyboardEventData.altKeyPressed = e.altKey;
+				keyboardEventData.capsKeyPressed = isCapslock(e);
 				keyboardEventData.state = KeyState.Up;
 				mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
 			});
@@ -66,5 +67,27 @@ class KeyboardManager
 			finishedCallback();
 		});
 	}
-}
+	private function isCapslock(e): Bool
+	{
+		var charCode = e.which;
 
+		var shifton = false;
+		if (e.shiftKey)
+		{
+		    shifton = e.shiftKey;
+		}
+
+		if (charCode >= 97 && charCode <= 122 && shifton)
+		{
+		    return true;
+		}
+
+		if (charCode >= 65 && charCode <= 90 && !shifton)
+		{
+		    return true;
+		}
+
+		return false;
+
+	}
+}

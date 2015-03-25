@@ -7,6 +7,7 @@ class KeyboardEventData
     public var shiftKeyPressed: Bool;
     public var ctrlKeyPressed: Bool;
     public var altKeyPressed: Bool;
+    public var capsKeyPressed: Bool;
 
     public var state: KeyState;
 
@@ -16,6 +17,7 @@ class KeyboardEventData
         shiftKeyPressed = false;
         ctrlKeyPressed = false;
         altKeyPressed = false;
+        capsKeyPressed = false;
         state = null;
     }
 
@@ -25,6 +27,7 @@ class KeyboardEventData
         shiftKeyPressed = origin.shiftKeyPressed;
         ctrlKeyPressed = origin.ctrlKeyPressed;
         altKeyPressed = origin.altKeyPressed;
+        capsKeyPressed = origin.capsKeyPressed;
         state = origin.state;
     }
 }

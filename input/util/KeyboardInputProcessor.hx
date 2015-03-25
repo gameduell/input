@@ -23,7 +23,7 @@ import input.KeyboardEventData;
         if (data.state == KeyState.Up)
         {
             var keyCode: Int = data.keyCode;
-            var shiftPressed: Bool = data.shiftKeyPressed;
+            var shiftPressed: Bool = data.shiftKeyPressed != data.capsKeyPressed;
 
             keyCode = modifyKey(shiftPressed, keyCode);
 

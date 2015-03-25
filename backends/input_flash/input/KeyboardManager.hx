@@ -48,6 +48,7 @@ class KeyboardManager
 			keyboardEventData.shiftKeyPressed = event.shiftKey;
 			keyboardEventData.ctrlKeyPressed = event.ctrlKey;
 			keyboardEventData.altKeyPressed = event.altKey;
+            keyboardEventData.capsKeyPressed = flash.ui.Keyboard.capsLock;
 			keyboardEventData.state = KeyState.Down;
 			mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
 		});
@@ -58,6 +59,7 @@ class KeyboardManager
 			keyboardEventData.shiftKeyPressed = event.shiftKey;
 			keyboardEventData.ctrlKeyPressed = event.ctrlKey;
 			keyboardEventData.altKeyPressed = event.altKey;
+            keyboardEventData.capsKeyPressed = flash.ui.Keyboard.capsLock;
 			keyboardEventData.state = KeyState.Up;
 			mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
 		});

@@ -52,18 +52,20 @@ class VirtualInputManager
     }
 
     /**
-        Shows / allows the virtual input to start.
+        Shows / allows the virtual input to start. Returns `true` if the input will show asynchronously or `false` if it
+        will be shown synchronously.
      */
-    public function show(): Void
+    public function show(): Bool
     {
-        input.show();
+        return input.show();
     }
 
     /**
-        Hides / forbids the virtual input from taking input.
+        Hides / forbids the virtual input from taking input. Returns `true` if the input will hide asynchronously or
+        `false` if it will be hidden synchronously.
      */
-    public function hide(): Void
+    public function hide(): Bool
     {
-        input.hide();
+        return input.hide();
     }
 }

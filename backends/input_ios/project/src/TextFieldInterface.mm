@@ -75,9 +75,7 @@ static value input_ios_text_show_keyboard(value hxWrapper)
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
     UTKEditableTextField *textField = wrapper->textField;
 
-    [textField showKeyboard];
-
-	return alloc_null();
+    return alloc_bool([textField showKeyboard]);
 }
 DEFINE_PRIM (input_ios_text_show_keyboard, 1);
 
@@ -87,9 +85,7 @@ static value input_ios_text_hide_keyboard(value hxWrapper)
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
     UTKEditableTextField *textField = wrapper->textField;
 
-    [textField hideKeyboard];
-
-	return alloc_null();
+    return alloc_bool([textField hideKeyboard]);
 }
 DEFINE_PRIM (input_ios_text_hide_keyboard, 1);
 

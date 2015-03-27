@@ -64,14 +64,14 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         }
     }
 
-    public void show()
+    public boolean show()
     {
-        keyboardView.show();
+        return keyboardView.show();
     }
 
-    public void hide()
+    public boolean hide()
     {
-        keyboardView.hide();
+        return keyboardView.hide();
     }
 
     @Override

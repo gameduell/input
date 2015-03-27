@@ -44,18 +44,22 @@ class VirtualInput
         });
     }
 
-    private function show(): Void
+    private function show(): Bool
     {
         inputAllowed = true;
 
         onInputStarted.dispatch();
+
+        return false;
     }
 
-    private function hide(): Void
+    private function hide(): Bool
     {
         inputAllowed = false;
 
         onInputEnded.dispatch();
+
+        return false;
     }
 
     private function set_text(value: String): String

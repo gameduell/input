@@ -15,8 +15,8 @@ class VirtualInput
 {
     private static var initNative = JNI.createStaticMethod("org/haxe/duell/input/keyboard/TextField",
     "init", "(Lorg/haxe/duell/hxjni/HaxeObject;)Lorg/haxe/duell/input/keyboard/TextField;");
-    private static var showNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "show", "()V");
-    private static var hideNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "hide", "()V");
+    private static var showNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "show", "()Z");
+    private static var hideNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField", "hide", "()Z");
     private static var setTextNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
     "setText", "(Ljava/lang/String;)V");
     private static var setAllowedCharCodesNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
@@ -44,14 +44,14 @@ class VirtualInput
         allowedCharCodes = charCodes;
     }
 
-    private function show(): Void
+    private function show(): Bool
     {
-        showNative(javaObj);
+        return showNative(javaObj);
     }
 
-    private function hide(): Void
+    private function hide(): Bool
     {
-        hideNative(javaObj);
+        return hideNative(javaObj);
     }
 
     public function onInputStartedCallback()

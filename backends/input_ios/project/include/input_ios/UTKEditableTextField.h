@@ -28,8 +28,8 @@
 @property (nonatomic, strong) NSString *string;
 @property (nonatomic, readwrite, weak) id<UTKEditableTextFieldDelegate> delegate;
 
-- (void)showKeyboard;
-- (void)hideKeyboard;
+- (BOOL)showKeyboard;
+- (BOOL)hideKeyboard;
 
 - (UIView *)keyBoardView;
 - (void)setValidCharacters:(NSCharacterSet *)set;

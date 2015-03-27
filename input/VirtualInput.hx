@@ -35,4 +35,7 @@ extern class VirtualInput
         The allowed char codes in this virtual input. Must be a 256-length `Vector`.
      */
     public var allowedCharCodes(null, default): Vector<Bool>;
+
+    private function show(): Bool;
+    private function hide(): Bool;
 }

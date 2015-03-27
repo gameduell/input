@@ -41,16 +41,24 @@ class VirtualInput
         allowedCharCodes = charCodes;
     }
 
-    private function show(): Void
+    private function show(): Bool
     {
-        showKeyboardNative(obj);
+        var result: Bool = showKeyboardNative(obj);
 
-        onInputStarted.dispatch();
+        if (result)
+        {
+            onInputStarted.dispatch();
+        }
+
+        return false;
     }
 
-    private function hide(): Void
+    private function hide(): Bool
     {
+        // callback handled natively
         hideKeyboardNative(obj);
+
+        return false;
     }
 
     private function set_text(value: String): String

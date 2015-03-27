@@ -80,64 +80,68 @@ public class KeyboardView extends EditText
         return super.onKeyPreIme(keyCode, event);
     }
 
-    public void show()
+    public boolean show()
     {
-        // don't show if it's showing
-        if (isShowing)
-        {
-            return;
-        }
-
-        // force toggle keyboard
-        InputMethodManager imm =
-                (InputMethodManager) DuellActivity.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        if (imm != null)
-        {
-            // requesting focus - UI thread
-            DuellActivity.getInstance().runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    requestFocus();
-                }
-            });
-
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            isShowing = true;
-
-            KeyboardViewDelegate viewDelegate = delegate.get();
-            if (viewDelegate != null)
-            {
-                viewDelegate.willShow();
-            }
-        }
-    }
-
-    public void hide()
-    {
-        // don't hide if it's not showing
+        // show only if it's not showing
         if (!isShowing)
         {
-            return;
-        }
+            // force toggle keyboard
+            InputMethodManager imm =
+                    (InputMethodManager) DuellActivity.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        // force dismiss keyboard
-        InputMethodManager imm =
-                (InputMethodManager) DuellActivity.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        if (imm != null)
-        {
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            isShowing = false;
-
-            KeyboardViewDelegate viewDelegate = delegate.get();
-            if (viewDelegate != null)
+            if (imm != null)
             {
-                viewDelegate.willHide();
+                // requesting focus - UI thread
+                DuellActivity.getInstance().runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        requestFocus();
+                    }
+                });
+
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                isShowing = true;
+
+                KeyboardViewDelegate viewDelegate = delegate.get();
+
+                if (viewDelegate != null)
+                {
+                    viewDelegate.willShow();
+                    return true;
+                }
             }
         }
+
+        return false;
+    }
+
+    public boolean hide()
+    {
+        // hide only if it is showing
+        if (isShowing)
+        {
+            // force dismiss keyboard
+            InputMethodManager imm =
+                    (InputMethodManager) DuellActivity.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            if (imm != null)
+            {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                isShowing = false;
+
+                KeyboardViewDelegate viewDelegate = delegate.get();
+
+                if (viewDelegate != null)
+                {
+                    viewDelegate.willHide();
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     void setDelegate(KeyboardViewDelegate delegate)

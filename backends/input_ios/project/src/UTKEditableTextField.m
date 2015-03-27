@@ -20,8 +20,8 @@
 
 @interface UTKKeyboardView : UIView <UIKeyInput>
 @property (nonatomic, weak) id<UTKKeyboardViewDelegate> delegate;
-- (void)showKeyboard;
-- (void)hideKeyboard;
+- (BOOL)showKeyboard;
+- (BOOL)hideKeyboard;
 @end
 
 @implementation UTKKeyboardView
@@ -74,14 +74,26 @@
 
 #pragma mark - UTKKeyboardViewDelegate delegate methods
 
-- (void)showKeyboard
+- (BOOL)showKeyboard
 {
-    [self becomeFirstResponder];
+    if (![self isFirstResponder])
+    {
+        [self becomeFirstResponder];
+        return YES;
+    }
+
+    return NO;
 }
 
-- (void)hideKeyboard
+- (BOOL)hideKeyboard
 {
-    [self resignFirstResponder];
+    if ([self isFirstResponder])
+    {
+        [self resignFirstResponder];
+        return YES;
+    }
+
+    return NO;
 }
 
 @end
@@ -123,14 +135,14 @@
 
 #pragma mark - Keyboard methods
 
-- (void)showKeyboard
+- (BOOL)showKeyboard
 {
-    [_keyboardView showKeyboard];
+    return [_keyboardView showKeyboard];
 }
 
-- (void)hideKeyboard
+- (BOOL)hideKeyboard
 {
-    [_keyboardView hideKeyboard];
+    return [_keyboardView hideKeyboard];
 }
 
 - (void)keyboardViewDidHideKeyBoard

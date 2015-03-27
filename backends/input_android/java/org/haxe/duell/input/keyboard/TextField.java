@@ -24,7 +24,7 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
 
     private String text;
 
-    private final BitSet validCharacters;
+    private BitSet validCharacters;
 
     private boolean eatEvent;
 
@@ -49,6 +49,13 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
 
     public void setAllowedCharCodes(boolean[] charCodes)
     {
+        if (charCodes.length > validCharacters.length())
+        {
+            // expand the size if needed
+            validCharacters = new BitSet(charCodes.length);
+        }
+
+        // reset all flags to false
         validCharacters.clear();
 
         for (int i = 0; i < charCodes.length; i++)

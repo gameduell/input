@@ -32,7 +32,7 @@ import input.KeyboardEventData;
             {
                 string = string.substr(0, string.length - 1);
             }
-            else if (allowedCharCodes[keyCode])
+            else if (keyCode < allowedCharCodes.length && allowedCharCodes[keyCode])
             {
                 string = string + String.fromCharCode(keyCode);
             }

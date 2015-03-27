@@ -49,7 +49,9 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
 
     public void setAllowedCharCodes(boolean[] charCodes)
     {
-        for (int i = 0; i < 256; i++)
+        validCharacters.clear();
+
+        for (int i = 0; i < charCodes.length; i++)
         {
             validCharacters.set(i, charCodes[i]);
         }

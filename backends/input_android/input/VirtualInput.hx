@@ -85,11 +85,6 @@ class VirtualInput
 
     private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>
     {
-        if (value.length != 256)
-        {
-            throw 'Invalid vector length for allowed char codes ${value.length}';
-        }
-
         setAllowedCharCodesNative(javaObj, value);
 
         return value;

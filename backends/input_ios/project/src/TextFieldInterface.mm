@@ -52,7 +52,8 @@ static value input_ios_text_create_textfieldwrapper(value hideKeyboardCallback, 
 
     listener.onTextChanged = ^(NSString *text)
     {
-        value haxeString = alloc_string_len((const char *)[text UTF8String], [text length]);
+        const char* cStr = (const char *)[text UTF8String];
+        value haxeString = alloc_string_len(cStr, strlen(cStr));
 
         val_call1(textChangedCallback, haxeString);
     };

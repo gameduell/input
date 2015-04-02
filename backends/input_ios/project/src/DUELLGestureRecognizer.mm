@@ -50,10 +50,10 @@ extern void callSetCachedVariablesCallback(value touchCount, value touchList);
     [self dispatchTouches:touches];
 }
 
-int convertPointerToUniqueInt(void *ptr)
+int convertPointerToUniqueInt(UITouch *touch)
 {
     int hash = 16777619; ////FNV PRIME, http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-source
-    hash ^= (long)ptr;
+    hash ^= [touch hash];
 
     return hash;
 }
@@ -98,8 +98,6 @@ extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
 - (void) dealloc
 {
     delete[] touchList;
-
-    [super dealloc];
 }
 
 @end

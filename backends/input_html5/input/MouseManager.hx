@@ -61,6 +61,7 @@ class MouseManager
             jquery.mousedown(function(e:Dynamic){
             	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
             	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateDown;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
       });
 
@@ -77,6 +78,7 @@ class MouseManager
 			{
             	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
             	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
                 mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
       });
 
@@ -84,14 +86,18 @@ class MouseManager
 			{
 				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
 			});
 
 			jquery.dblclick(function(e:Dynamic)
 			{
 				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
 				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateDoubleClick;
 				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
 			});
 
 			/// Mousewheel Events

@@ -212,12 +212,18 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
     @Override
     public void onKeyDown(int keyCode, KeyEvent event)
     {
-        managedKeyboardView.onKeyDown(keyCode, event);
+        if (managedKeyboardView != null)
+        {
+            managedKeyboardView.onKeyDown(keyCode, event);
+        }
     }
 
     @Override
     public void onKeyUp(int keyCode, KeyEvent event)
     {
-        managedKeyboardView.onKeyUp(keyCode, event);
+        if (managedKeyboardView != null)
+        {
+            managedKeyboardView.onKeyUp(keyCode, event);
+        }
     }
 }

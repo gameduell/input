@@ -13,7 +13,7 @@ import de.polygonal.ds.pooling.DynamicObjectPool;
 
 @:buildXml('
     <files id="haxe">
-        <include name="${haxelib:input}/backends/input_android/native.xml" />
+        <include name="${haxelib:duell_input}/backends/input_android/native.xml" />
     </files>
 ')
 @:headerCode("

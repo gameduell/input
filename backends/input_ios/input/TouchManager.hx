@@ -12,7 +12,7 @@ import input.Touch;
 
 @:buildXml('
     <files id="haxe">
-        <include name="${haxelib:input}/backends/input_ios/native.xml" />
+        <include name="${haxelib:duell_input}/backends/input_ios/native.xml" />
     </files>
 ')
 @:headerCode("

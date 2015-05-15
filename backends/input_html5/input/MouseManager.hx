@@ -123,7 +123,7 @@ class MouseManager
 
 		if(untyped Browser.window.event)
 		{
-			e = Browser.window.event;
+			untyped e = Browser.window.event;
 		}
 
 		if(untyped e.wheelDelta)

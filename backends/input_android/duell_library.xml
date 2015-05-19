@@ -12,6 +12,7 @@
     	<android>
     		<java-source name="DuellInputActivityExtension" path="java" />
     		<activity-extension name="org.haxe.duell.input.DuellInputActivityExtension" />
+    		<uses value="android.hardware.touchscreen.multitouch.distinct" required="true" />
 		</android>
 	</platform-config>
 </library>

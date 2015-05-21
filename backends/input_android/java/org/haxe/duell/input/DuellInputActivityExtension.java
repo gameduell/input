@@ -68,8 +68,11 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
         currentView.setOnTouchListener(new DuellInputTouchListener());
         extension.get().currentView = new WeakReference<View>(currentView);
 
-        // init keyboard handling
-        extension.get().initializeKeyboardHandling();
+        if(DuellActivity.getInstance() != null)
+        {
+            // init keyboard handling
+            extension.get().initializeKeyboardHandling();
+        }
     }
 
     /**

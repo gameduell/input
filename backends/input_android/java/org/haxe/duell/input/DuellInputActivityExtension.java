@@ -21,6 +21,8 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
 
     public static WeakReference<DuellInputActivityExtension> extension = new WeakReference<DuellInputActivityExtension>(null);
 
+    private static Runnable extensionCompletion = null;
+
     private WeakReference<View> currentView = new WeakReference<View>(null);
 
     private KeyboardView managedKeyboardView;
@@ -36,18 +38,29 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
                     "after a view as been created. E.g. initializing the opengl library.");
         }
 
-        final View prevView = extension.get().currentView.get();
-
-        if (prevView != null)
+        extensionCompletion = new Runnable()
         {
-            prevView.setOnTouchListener(null);
+            @Override
+            public void run()
+            {
+                final View prevView = extension.get().currentView.get();
+
+                if (prevView != null)
+                {
+                    prevView.setOnTouchListener(null);
+                }
+
+                currentView.setOnTouchListener(new DuellInputTouchListener());
+                extension.get().currentView = new WeakReference<View>(currentView);
+            }
+        };
+
+        // initialize was probably created before onCreate, so we wait for it to be called after onCreate
+        if (extension.get() != null)
+        {
+            extensionCompletion.run();
+            extensionCompletion = null;
         }
-
-        currentView.setOnTouchListener(new DuellInputTouchListener());
-        extension.get().currentView = new WeakReference<View>(currentView);
-
-        // init keyboard handling
-        extension.get().initializeKeyboardHandling();
     }
 
     /**
@@ -61,17 +74,22 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
 
     }
 
-
     /**
      * Called when the activity is starting.
      */
     public void onCreate(Bundle savedInstanceState)
     {
-
         extension = new WeakReference<DuellInputActivityExtension>(this);
 
-    }
+        initializeKeyboardHandling();
 
+        // this is by the way, as well as the extension, a bad exploit of static variables
+        if (extensionCompletion != null)
+        {
+            extensionCompletion.run();
+            extensionCompletion = null;
+        }
+    }
 
     /**
      * Perform any final cleanup before an activity is destroyed.

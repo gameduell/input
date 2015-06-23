@@ -39,10 +39,10 @@ import java.util.regex.Pattern;
 public class TextField implements KeyboardViewDelegate, TextWatcher
 {
     private final CentralHaxeDispatcher dispatcher;
-    private final KeyboardView keyboardView;
+
+    private KeyboardView keyboardView;
 
     private String text;
-
     private BitSet validCharacters;
 
     private boolean eatEvent;
@@ -55,15 +55,21 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
     private TextField(HaxeObject hxObject)
     {
         dispatcher = new CentralHaxeDispatcher(hxObject);
-
-        keyboardView = new KeyboardView(DuellActivity.getInstance());
-        keyboardView.setDelegate(this);
-        DuellInputActivityExtension.extension.get().setManagedKeyboardView(keyboardView);
-
-        keyboardView.addTextChangedListener(this);
-
         text = "";
         validCharacters = new BitSet(256);
+
+        DuellActivity.getInstance().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                keyboardView = new KeyboardView(DuellActivity.getInstance());
+                keyboardView.setDelegate(TextField.this);
+                DuellInputActivityExtension.extension.get().setManagedKeyboardView(keyboardView);
+
+                keyboardView.addTextChangedListener(TextField.this);
+            }
+        });
     }
 
     public void setAllowedCharCodes(boolean[] charCodes)

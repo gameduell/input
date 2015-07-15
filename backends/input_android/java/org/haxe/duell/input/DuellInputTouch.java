@@ -205,8 +205,10 @@ class DuellInputTouch
         {
             /// this only happens when one touch had pending, and we have to send all of them.
             /// we send as moved in this case
-
-            DuellInputNativeInterface.touchInfo(id, lastDataUploaded.x, lastDataUploaded.y, 1);
+            if (lastDataUploaded != null) /// touch may have started with incorrect data
+            {
+                DuellInputNativeInterface.touchInfo(id, lastDataUploaded.x, lastDataUploaded.y, 1);
+            }
         }
     }
 }

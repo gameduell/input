@@ -31,6 +31,7 @@ import msignal.Signal;
 
 extern class VirtualInput
 {
+    public function new(vec: Vector<Bool>);
     /**
         Callback fired when the input is allowed to be started.
      */

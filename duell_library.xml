@@ -10,5 +10,10 @@
     <include path="backends/input_flash/duell_library.xml" if="flash" />
     <include path="backends/input_ios/duell_library.xml" if="ios" />
 
+    <platform-config>
+        <documentation>
+            <documentation-folder library="input" path="documentation" />
+        </documentation>
+    </platform-config>
 
 </library>

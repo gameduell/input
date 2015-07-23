@@ -29,7 +29,7 @@ package input;
 import haxe.ds.Vector;
 import hxjni.JNI;
 import msignal.Signal;
-
+@:keep
 class VirtualInput
 {
     private static var initNative = JNI.createStaticMethod("org/haxe/duell/input/keyboard/TextField",
@@ -82,7 +82,6 @@ class VirtualInput
     {
         onInputEnded.dispatch();
     }
-
     public function onTextChangedCallback(data: Dynamic)
     {
         text = data;

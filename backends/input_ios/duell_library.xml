@@ -4,6 +4,8 @@
     <ndll name="inputios" build-file-path="project/Build.xml" bin-path="ndll" />
 
     <haxe-compile-arg value="--macro keep('de.polygonal.ds.pooling.DynamicObjectPool')" />
+    <haxe-compile-arg value="--macro keep('input.TouchState')" />
+    <haxe-compile-arg value="--macro keep('input.Touch')" />
 
     <platform-config>
     	<ios>

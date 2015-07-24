@@ -8,6 +8,8 @@
     <duelllib name="hxjni"  version="1.0.0+"/>
 
     <haxe-compile-arg value="--macro keep('de.polygonal.ds.pooling.DynamicObjectPool')" />
+	<haxe-compile-arg value="--macro keep('input.TouchState')" />
+	<haxe-compile-arg value="--macro keep('input.Touch')" />
 
     <platform-config>
     	<android>

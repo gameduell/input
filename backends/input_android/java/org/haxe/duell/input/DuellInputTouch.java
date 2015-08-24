@@ -162,8 +162,7 @@ class DuellInputTouch
 
     public boolean isFinished()
     {
-
-        return lastDataUploaded.state == 3 || lastDataUploaded.state == 4;
+        return (lastDataUploaded != null && (lastDataUploaded.state == 3 || lastDataUploaded.state == 4));
     }
 
     public void cancel()

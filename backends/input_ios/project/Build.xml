@@ -1,11 +1,11 @@
 <xml>
-	
+
 	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
-	
+
 	<files id="src">
-		
+		<include name="${haxelib:duell_duellbuildios}/native/native.xml" />
 		<compilerflag value="-Iinclude"/>
-		
+
 		<file name="src/InputCapturer.mm"/>
 		<file name="src/ExternalInterface.mm"/>
         <file name="src/DUELLGestureRecognizer.mm"/>
@@ -15,18 +15,18 @@
         <file name="src/TextFieldInterface.mm" />
 	</files>
 
-	
+
 	<target id="NDLL" output="${LIBPREFIX}inputios${DBG}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
-		
+
 		<outdir name="../ndll/${BINDIR}"/>
 		<files id="src"/>
-		
+
 	</target>
-	
+
 	<target id="default">
-		
+
 		<target id="NDLL"/>
-		
+
 	</target>
-	
+
 </xml>

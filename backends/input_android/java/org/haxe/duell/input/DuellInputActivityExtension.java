@@ -35,6 +35,7 @@ import org.haxe.duell.DuellActivity;
 import org.haxe.duell.Extension;
 import org.haxe.duell.input.keyboard.KeyboardView;
 import org.haxe.duell.input.keyboard.ManagedKeyboardViewer;
+import android.view.WindowManager;
 
 import java.lang.ref.WeakReference;
 
@@ -102,6 +103,8 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
     public void onCreate(Bundle savedInstanceState)
     {
         extension = new WeakReference<DuellInputActivityExtension>(this);
+        
+        DuellActivity.getInstance().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         initializeKeyboardHandling();
 

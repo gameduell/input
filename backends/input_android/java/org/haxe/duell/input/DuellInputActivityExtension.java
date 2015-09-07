@@ -93,7 +93,7 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
     public boolean onActivityResult(int requestCode, int resultCode, Intent data)
     {
 
-        return true;
+        return false;
 
     }
 
@@ -103,7 +103,7 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
     public void onCreate(Bundle savedInstanceState)
     {
         extension = new WeakReference<DuellInputActivityExtension>(this);
-        
+
         DuellActivity.getInstance().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         initializeKeyboardHandling();

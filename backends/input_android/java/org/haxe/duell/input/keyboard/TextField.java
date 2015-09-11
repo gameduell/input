@@ -36,6 +36,8 @@ import org.haxe.duell.input.event.CentralHaxeDispatcher;
 import java.util.BitSet;
 import java.util.regex.Pattern;
 
+import android.util.Log;
+
 public class TextField implements KeyboardViewDelegate, TextWatcher
 {
     private final CentralHaxeDispatcher dispatcher;
@@ -136,12 +138,11 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
             // keyboardViewDidDeleteBackward
             string = s.toString();
         }
-        else if (string.length() < s.length())
+        else if (string.length() <= s.length())
         {
             // keyboardViewDidInsertText
             string = s.toString();
             String processedText = string;
-
             for (int i = 0; i < string.length(); i++)
             {
                 if (!validCharacters.get(string.charAt(i)))
@@ -163,7 +164,6 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
                 }
             }
         }
-
         text = string;
         dispatcher.dispatchEvent(CentralHaxeDispatcher.TEXT_CHANGED_EVENT, text);
     }
@@ -180,7 +180,6 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
     public void setText(final String s)
     {
         text = s;
-
         DuellActivity.getInstance().runOnUiThread(new Runnable()
         {
             @Override

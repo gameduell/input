@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library xmlns="duell">
 
-    <supported-build-plugin name="android" version="4.0.0+" />
+    <supported-build-plugin name="android" version="5.0.0+" />
 
     <ndll name="inputandroid" build-file-path="project/Build.xml" bin-path="ndll" />
 

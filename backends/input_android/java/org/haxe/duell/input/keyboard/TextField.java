@@ -60,6 +60,8 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         text = "";
         validCharacters = new BitSet(256);
 
+        final Thread currentThread = Thread.currentThread();
+
         DuellActivity.getInstance().runOnUiThread(new Runnable()
         {
             @Override
@@ -70,8 +72,18 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
                 DuellInputActivityExtension.extension.get().setManagedKeyboardView(keyboardView);
 
                 keyboardView.addTextChangedListener(TextField.this);
+
+                currentThread.interrupt();
             }
         });
+
+        long timestamp = System.currentTimeMillis();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Log.d("duell", "TextField ready after " + (System.currentTimeMillis() - timestamp) + " ms");
+        }
     }
 
     public void setAllowedCharCodes(boolean[] charCodes)

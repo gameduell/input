@@ -39,6 +39,8 @@ import android.view.WindowManager;
 
 import java.lang.ref.WeakReference;
 
+import android.util.Log;
+
 public class DuellInputActivityExtension extends Extension implements ManagedKeyboardViewer
 {
 
@@ -233,7 +235,10 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
     @Override
     public void setManagedKeyboardView(final KeyboardView _keyboardView)
     {
+
         final ViewGroup parent = DuellActivity.getInstance().parent;
+
+        final Thread currentThread = Thread.currentThread();
 
         DuellActivity.getInstance().runOnUiThread(new Runnable()
         {
@@ -253,8 +258,18 @@ public class DuellInputActivityExtension extends Extension implements ManagedKey
                 }
 
                 managedKeyboardView.setText("");
+
+                currentThread.interrupt();
             }
         });
+
+        long timestamp = System.currentTimeMillis();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Log.d("duell", "managedKeyboardView ready after " + (System.currentTimeMillis() - timestamp) + " ms");
+        }
     }
 
     @Override

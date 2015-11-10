@@ -26,11 +26,23 @@
 
 package input;
 
+/**
+    Defines the state of a mouse button.
+ */
 enum MouseButtonState
 {
+    /** Button state down. */
     MouseButtonStateDown;
+
+    /** Button state up. */
     MouseButtonStateUp;
+
+    /** Button state click. */
     MouseButtonStateClick;
+
+    /** Button state double click. */
     MouseButtonStateDoubleClick;
+
+    /** Button state none. */
     MouseButtonStateNone;
 }

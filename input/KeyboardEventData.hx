@@ -26,17 +26,32 @@
 
 package input;
 
+/**
+    Representation of the keyboard event data.
+ */
 class KeyboardEventData
 {
+    /** Key code. */
     public var keyCode: Int;
 
+    /** Shift key pressed. */
     public var shiftKeyPressed: Bool;
+
+    /** Ctrl key pressed. */
     public var ctrlKeyPressed: Bool;
+
+    /** Alt key pressed. */
     public var altKeyPressed: Bool;
+
+    /** Caps key pressed. */
     public var capsKeyPressed: Bool;
 
+    /** The key state. */
     public var state: KeyState;
 
+    /**
+        Constructor, initializes all the fields.
+     */
     public function new()
     {
         keyCode = 0;
@@ -47,6 +62,11 @@ class KeyboardEventData
         state = null;
     }
 
+    /**
+        Creates a copy of the keyboard event data.
+
+        @param origin KeyboardEventData to copy
+     */
     public function copy(origin: KeyboardEventData): Void
     {
         keyCode = origin.keyCode;

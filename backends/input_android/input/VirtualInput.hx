@@ -47,10 +47,9 @@ class VirtualInput
     public var onInputEnded(default, null): Signal0;
     public var onTextChanged(default, null): Signal1<String>;
 
-    private var _text: String;
-    public var text(get, set): String;
+    public var text(default, set): String;
 
-    public var allowedCharCodes(never, set): Vector<Bool>;
+    public var allowedCharCodes(null, set): Vector<Bool>;
 
     private function new(charCodes: Vector<Bool>)
     {
@@ -74,40 +73,35 @@ class VirtualInput
         return hideNative(javaObj);
     }
 
-    public function onInputStartedCallback()
+    private function onInputStartedCallback()
     {
         onInputStarted.dispatch();
     }
 
-    public function onInputEndedCallback()
+    private function onInputEndedCallback()
     {
         onInputEnded.dispatch();
     }
-    public function onTextChangedCallback(data: Dynamic)
+    private function onTextChangedCallback(data: Dynamic)
     {
         /// could just call the setter, but we want to avoid the setTextNative
-        if (_text != data)
+        if (text != data)
         {
-            _text = data;
+            text = data;
             onTextChanged.dispatch(data);
         }
     }
 
     private function set_text(value: String): String
     {
-        if (_text != value)
+        if (text != value)
         {
-            _text = value;
+            text = value;
             setTextNative(javaObj, value);
             onTextChanged.dispatch(value);
         }
 
         return value;
-    }
-
-    private function get_text(): String
-    {
-        return _text;
     }
 
     private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>

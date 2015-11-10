@@ -28,6 +28,9 @@ package input;
 
 import input.util.CharSet;
 
+/**
+    Representation of a virtual input.
+ */
 @:access(input.VirtualInput)
 class VirtualInputManager
 {

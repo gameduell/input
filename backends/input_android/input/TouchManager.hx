@@ -54,7 +54,7 @@ public:
 ')
 class TouchManager
 {
-	public var onTouches : Signal1<Array<Touch>>;
+	public var onTouches(default, null) : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
 	static private var inputandroid_initialize = Lib.load ("inputandroid", "inputandroid_initialize", 3);

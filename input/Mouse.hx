@@ -34,14 +34,34 @@ import types.Vector2;
 
 import msignal.Signal;
 
+/**
+    Representation of a mouse that listens to mouse events.
+ */
 class Mouse
 {
+	/**
+        Retrieves the state of the mouse.
+     */
 	public var state (default, null) : Map<MouseButton, MouseButtonState>;
+
+	/**
+        Dispatched when the mouse generates a button event.
+     */
 	public var onButtonEvent(default, null) : Signal1<MouseButtonEventData>;
+
+	/**
+        Dispatched when the mouse generates a movement event.
+     */
 	public var onMovementEvent(default, null) : Signal1<MouseMovementEventData>;
-	public var screenPosition(get, null) : Vector2;
-	private var _screenPosition : Vector2;
-	/// called from within the package, should not be created from the outside
+
+	/**
+        Retrieves the screen position.
+     */
+	public var screenPosition(default, null) : Vector2;
+
+	/**
+        Called from within the package, should not be created from the outside.
+     */
 	private function new()
 	{
 		state = [
@@ -51,10 +71,11 @@ class Mouse
 		];
 		onButtonEvent = new Signal1();
 		onMovementEvent = new Signal1();
-		_screenPosition = new Vector2();
+		screenPosition = new Vector2();
 	}
-	public function get_screenPosition() : Vector2
+
+	private function get_screenPosition() : Vector2
 	{
-	    return _screenPosition;
+	    return screenPosition;
 	}
 }

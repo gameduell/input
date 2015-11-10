@@ -30,13 +30,25 @@ import msignal.Signal;
 
 import input.Touch;
 
+/**
+	Interface of the Touch Manager.
+ */
 extern class TouchManager
 {
-	public var onTouches(default, null) : Signal1<Array<Touch>>;
-
 	private function new();
 
+	/**
+        Dispatched when a touch generates an event.
+     */
+	public var onTouches(default, null) : Signal1<Array<Touch>>;
+
+	/**
+	    Gets the singleton interface.
+	 */
 	static public function instance() : TouchManager;
 
+	/**
+	    Initializes the system.
+	 */
 	public static function initialize(finishedCallback : Void->Void) : Void;
 }

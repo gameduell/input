@@ -29,19 +29,38 @@ package input;
 import input.MouseButtonState;
 import input.MouseButton;
 
-/// WARNING, these objects are short lived, and unless they are used on the same frame where
-/// they are dispatched, they should have its contents copied
+/**
+    Representation of the mouse button event data.
+
+    WARNING, these objects are short lived, and unless they are used on the same frame where
+    they are dispatched, they should have its contents copied.
+ */
 class MouseButtonEventData
 {
+    /**
+        Retrieves the button that generates the event.
+     */
     public var button(default, default) : MouseButton;
+
+    /**
+        Retrieves the new state after the event.
+     */
     public var newState(default, default) : MouseButtonState;
 
+    /**
+        Constructor, initializes all the fields.
+     */
     public function new()
     {
     	button = null;
     	newState = null;
     }
 
+    /**
+        Creates a copy of the mouse button event data.
+
+        @param origin MouseButtonEventData to copy
+     */
     public function copy(origin: MouseButtonEventData): Void
     {
         button = origin.button;

@@ -48,7 +48,7 @@ import input.Touch;
 ")
 class TouchManager
 {
-	public var onTouches : Signal1<Array<Touch>>;
+	public var onTouches(default, null) : Signal1<Array<Touch>>;
 
 	static private var touchInstance : TouchManager;
 	static private var inputios_initialize = Lib.load ("inputios", "inputios_initialize", 2);
@@ -144,7 +144,7 @@ class TouchManager
         }
         this->onTouches->dispatch(this->touchesToSend);
     ")
-	public function newTouchesCallback(touchCount : Dynamic, touchList : Dynamic) {}
+	private function newTouchesCallback(touchCount : Dynamic, touchList : Dynamic) {}
 
 	static public inline function instance() : TouchManager
 	{

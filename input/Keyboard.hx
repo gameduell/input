@@ -28,11 +28,20 @@ package input;
 
 import msignal.Signal;
 
+/**
+    Representation of a keyboard that listens to keyboard events.
+ */
 class Keyboard
 {
+    /**
+        Dispatched when the keyboard generates an event.
+     */
     public var onKeyboardEvent(default, null): Signal1<KeyboardEventData>;
 
-    public function new()
+    /**
+        Called from within the package, should not be created from the outside.
+     */
+    private function new()
     {
         onKeyboardEvent = new Signal1();
     }

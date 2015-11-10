@@ -27,17 +27,35 @@
 package input;
 
 /// not yet used
+/**
+    Representation of the mouse movement event data.
+ */
 class MouseMovementEventData
 {
+    /**
+        Retrieves the deltaX of the movement event.
+     */
     public var deltaX(default, default) : Float;
+
+    /**
+        Retrieves the deltaY of the movement event.
+     */
     public var deltaY(default, default) : Float;
 
+    /**
+        Constructor, initializes all the fields.
+     */
     public function new()
     {
     	deltaX = 0;
     	deltaY = 0;
     }
 
+    /**
+        Creates a copy of the keyboard event data.
+
+        @param origin KeyboardEventData to copy
+     */
     public function copy(origin: MouseMovementEventData): Void
     {
         deltaX = origin.deltaX;

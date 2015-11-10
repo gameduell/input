@@ -135,7 +135,7 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
     }
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count)
+    public void onTextChanged(final CharSequence s, int start, int before, int count)
     {
         // event was flagged as eaten, don't execute logic
         if (eatEvent)
@@ -169,10 +169,16 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
                     // set the text back and update the keyboard view
                     string = processedText;
 
-                    keyboardView.setText(s);
+                    // ensure this is done in the ui thread
+                    DuellActivity.getInstance().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            keyboardView.setText(s);
 
-                    // point the cursor to the end, its position gets messed up after replacing
-                    keyboardView.setSelection(Math.max(0, s.length() - 1));
+                            // point the cursor to the end, its position gets messed up after replacing
+                            keyboardView.setSelection(Math.max(0, s.length() - 1));
+                        }
+                    });
                 }
             }
         }

@@ -7,7 +7,6 @@
 
     <include path="backends/input_html5/duell_library.xml" if="html5" />
     <include path="backends/input_android/duell_library.xml" if="android" />
-    <include path="backends/input_flash/duell_library.xml" if="flash" /> <!--// TODO Remove flash support with next major-->
     <include path="backends/input_ios/duell_library.xml" if="ios[or]tvos" />
 
     <platform-config>

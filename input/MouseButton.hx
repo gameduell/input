@@ -26,11 +26,23 @@
 
 package input;
 
+/**
+    Represents each button of the mouse.
+ */
 enum MouseButton
 {
+    /** The left button. */
     MouseButtonLeft;
+
+    /** The right button. */
     MouseButtonRight;
+
+    /** The middle button. */
     MouseButtonMiddle;
+
+    /** The wheel button. */
     MouseButtonWheel(delta: Float);
+
+    /** Other button. */
     MouseButtonOther(name: String);
 }

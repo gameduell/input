@@ -28,17 +28,37 @@ package input;
 
 import input.Mouse;
 
+/**
+	Interface of the Mouse Manager.
+ */
 extern class MouseManager
 {
 	private function new();
 
+	/**
+	    Gets the singleton interface.
+	 */
 	static public function instance() : MouseManager;
 
+	/**
+	    Initializes the system.
+	 */
 	public static function initialize(finishedCallback : Void->Void) : Void;
 
-	public static function getMainMouse() : Mouse;
+	/**
+	    Retrieves a reference to the main mouse
+	 */
+	public function getMainMouse() : Mouse;
 
 	/// maybe one day we will have support for multiple mouses :D
-	public static function getMouse(mouseIdentifier : String) : Mouse;
-	public static function getMouses() : Iterator<String>;
+
+    /**
+	    Gets a specific mouse (if multiple mouses are supported).
+	 */
+	public function getMouse(mouseIdentifier : String) : Mouse;
+
+    /**
+	    Gets all the mouses (if multiple mouses are supported).
+	 */
+	public function getMouses() : Iterator<String>;
 }

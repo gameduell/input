@@ -26,25 +26,58 @@
 
 package input;
 
+/**
+    Defines the state of a touch event.
+ */
 enum TouchState
 {
+    /** Touch began. */
 	TouchStateBegan;
+
+    /** Touch moved. */
 	TouchStateMoved;
+
+    /** Touch stationary. */
 	TouchStateStationary;
+
+    /** Touch ended. */
 	TouchStateEnded;
+
+    /** Touch cancelled. */
     TouchStateCancelled;
 }
 
+/**
+    Representation of a Touch event data
 
-/// WARNING, these objects are short lived, and unless they are used on the same frame where
-/// they are dispatched, they should have its contents copied
+    WARNING, these objects are short lived, and unless they are used on the same frame where
+    they are dispatched, they should have its contents copied.
+ */
 class Touch
 {
+    /**
+        Gets the id of the touch.
+     */
     public var id(default, default) : Int;
+
+    /**
+        Gets the x position of the touch.
+     */
     public var x(default, default) : Int;
+
+    /**
+        Gets the y position of the touch.
+     */
     public var y(default, default) : Int;
+
+    /**
+        Gets the touch state.
+     */
     public var state(default, default) : TouchState;
 
+    /**
+        Constructor, initializes all the fields.
+     */
     public function new()
     {
     	id = 0;
@@ -53,6 +86,11 @@ class Touch
     	state = TouchStateBegan;
     };
 
+    /**
+        Creates a copy of the touch
+
+        @param origin Touch to copy
+     */
     public function copy(origin: Touch): Void
     {
         x = origin.x;

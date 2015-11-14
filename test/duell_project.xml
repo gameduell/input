@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<app title="Input Test" file="InputTest" package="de.gameduell.inputtest" version="0.0.1" company="Gameduell GmbH" />
+	<main name="Main" />
+
+	<source path="source" />
+
+	<duelllib name="graphics" version="master" />
+	<duelllib name="input" version="master" />
+	<duelllib name="runloop" version="2.0.3+" />
+
+</project>

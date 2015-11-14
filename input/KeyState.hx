@@ -26,8 +26,14 @@
 
 package input;
 
+/**
+    Defines the state of a key.
+ */
 enum KeyState
 {
+    /** The key is pressed. */
     Down;
+
+    /** The key is released. */
     Up;
 }

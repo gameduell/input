@@ -28,11 +28,20 @@ package input;
 
 /**
     Defines the state of a key.
+
+    Life cycle of a key:
+    * When a key relates to a character: Down -> Press -> Up
+    * When a key doesn't relate to a character: Down -> Up
+
+    <b>Note<b> In states `Down` and `Up` only a key code is available. In state `Press` only a char code is available.
  */
 enum KeyState
 {
-    /** The key is pressed. */
+    /** The key is down. */
     Down;
+
+    /** The key is pressed. */
+    Press;
 
     /** The key is released. */
     Up;

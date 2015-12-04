@@ -77,16 +77,20 @@ class Main
 					{
 						if (keyeventdata.shiftKeyPressed)
 						{
-							trace("Shift key pressed");
+							trace("Shift key down");
 						}
 						else
 						{
-							trace("Any key pressed");
+							trace("Any key down");
 						}
 					}
 				case KeyState.Up:
 					{
-						trace("Key up");
+						trace("Key up: " + keyeventdata.keyCode);
+					}
+				case KeyState.Press:
+					{
+						trace("Key press: " + keyeventdata.charCode + " = " + String.fromCharCode(keyeventdata.charCode));
 					}
 			}
 		});

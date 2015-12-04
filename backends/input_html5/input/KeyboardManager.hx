@@ -26,6 +26,7 @@
 
 package input;
 
+import js.html.KeyboardEvent;
 import input.Keyboard;
 import js.JQuery;
 import js.Browser;
@@ -69,7 +70,7 @@ class KeyboardManager
 	{
 		jquery.ready(function(e):Void
         {
-			jquery.keydown(function(e:Dynamic)
+			jquery.keydown(function(e:Dynamic): Bool
 			{
 				keyboardEventData.keyCode = e.which;
 				keyboardEventData.shiftKeyPressed = e.shiftKey;
@@ -78,7 +79,21 @@ class KeyboardManager
                 keyboardEventData.capsKeyPressed = untyped CapsLock.isOn();
 				keyboardEventData.state = KeyState.Down;
 				mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
+
+                // Back space key is disabled as in the browsers it triggers history back action.
+                return e.which != KeyboardEvent.DOM_VK_BACK_SPACE;
 			});
+
+            jquery.keypress(function(e:Dynamic)
+			{
+				keyboardEventData.charCode = e.which;
+				keyboardEventData.shiftKeyPressed = e.shiftKey;
+				keyboardEventData.ctrlKeyPressed = e.ctrlKey;
+				keyboardEventData.altKeyPressed = e.altKey;
+				keyboardEventData.capsKeyPressed = untyped CapsLock.isOn();
+				keyboardEventData.state = KeyState.Press;
+				mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
+            });
 
 			jquery.keyup(function(e:Dynamic)
 			{

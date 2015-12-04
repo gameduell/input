@@ -31,8 +31,11 @@ package input;
  */
 class KeyboardEventData
 {
-    /** Key code. */
+    /** Key code. Available in states `KeyState.Up` and `KeyState.Down`. */
     public var keyCode: Int;
+
+    /** Char code. Available only in state `KeyState.Press`. */
+    public var charCode: Int;
 
     /** Shift key pressed. */
     public var shiftKeyPressed: Bool;
@@ -55,6 +58,7 @@ class KeyboardEventData
     public function new()
     {
         keyCode = 0;
+        charCode = 0;
         shiftKeyPressed = false;
         ctrlKeyPressed = false;
         altKeyPressed = false;
@@ -70,6 +74,7 @@ class KeyboardEventData
     public function copy(origin: KeyboardEventData): Void
     {
         keyCode = origin.keyCode;
+        charCode = origin.charCode;
         shiftKeyPressed = origin.shiftKeyPressed;
         ctrlKeyPressed = origin.ctrlKeyPressed;
         altKeyPressed = origin.altKeyPressed;

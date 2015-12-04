@@ -26,56 +26,50 @@
 
 package input.util;
 
+import js.html.KeyboardEvent;
 import haxe.ds.Vector;
 import input.KeyboardEventData;
 
 @:final class KeyboardInputProcessor
 {
     /**
-        Processes the string input on `string` using the keyboard event data encoded in `data`, restricting the input
+        Processes the string input on `test` using the keyboard event data encoded in `data`, restricting the input
         according to the flags specified in `allowedCharCodes`.
 
         Returns the final input to `callback`.
      */
-    public static inline function process(string: String, data: KeyboardEventData, allowedCharCodes: Vector<Bool>, callback: String -> Void): Void
+    public static inline function process(text: String, data: KeyboardEventData, allowedCharCodes: Vector<Bool>, callback: String -> Void): Void
     {
-        if (data.state == KeyState.Up)
+        var isUpdated: Bool = false;
+
+        if (data.state == KeyState.Down)
         {
-            var keyCode: Int = data.keyCode;
-            var isUpper: Bool = data.shiftKeyPressed != data.capsKeyPressed;
-
-            // apply shift modifications to the keycode to make it properly lower- or upper-case
-            keyCode = modifyKey(isUpper, keyCode);
-
-            if (keyIsBackspace(keyCode))
+            if (data.keyCode == KeyboardEvent.DOM_VK_BACK_SPACE)
             {
-                string = string.substr(0, string.length - 1);
-            }
-            else if (keyCode < allowedCharCodes.length && allowedCharCodes[keyCode])
-            {
-                string = string + String.fromCharCode(keyCode);
+                text = text.substr(0, text.length - 1);
+                isUpdated = true;
             }
 
-            if (callback != null)
+        }
+
+        if (data.state == KeyState.Press)
+        {
+            if (data.charCode == KeyboardEvent.DOM_VK_BACK_SPACE)
             {
-                callback(string);
+                text = text.substr(0, text.length - 1);
+                isUpdated = true;
             }
+            else if (data.charCode < allowedCharCodes.length && allowedCharCodes[data.charCode])
+            {
+                text = text + String.fromCharCode(data.charCode);
+                isUpdated = true;
+            }
+        }
+
+        if (isUpdated && callback != null)
+        {
+            callback(text);
         }
     }
 
-    private static inline function keyIsBackspace(keyCode: Int): Bool
-    {
-        return keyCode == 8;
-    }
-
-    private static inline function modifyKey(isUpper: Bool, keyCode: Int): Int
-    {
-        if ((keyCode >= 65 && keyCode <= 90) && !isUpper)
-        {
-            // 65 is 'A', 97 is 'a'
-            return keyCode + 32;
-        }
-
-        return keyCode;
-    }
 }

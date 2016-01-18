@@ -26,6 +26,8 @@
 
 package input;
 
+import js.JQuery;
+import js.html.Element;
 import input.Mouse;
 
 import js.JQuery;
@@ -33,6 +35,7 @@ import js.JQuery;
 import js.Browser;
 import input.Mouse;
 import input.MouseButtonEventData;
+import html5_appdelegate.HTML5AppDelegate;
 
 @:access(input.Mouse)
 class MouseManager
@@ -44,11 +47,15 @@ class MouseManager
 	private var mouseButtonEventData: MouseButtonEventData;
 	private var mouseMovementEventData: MouseMovementEventData;
 	private var jquery : JQuery;
+	private var canvas : JQuery;
+
 	private function new()
 	{
 		mainMouse = new Mouse();
 		mouses = new Map();
 		jquery = new JQuery(Browser.window);
+		canvas = new JQuery(HTML5AppDelegate.instance().rootView);
+
 		mouseButtonEventData = new MouseButtonEventData();
 		mouseMovementEventData = new MouseMovementEventData();
 	}
@@ -95,8 +102,8 @@ class MouseManager
 			{
 				mouseMovementEventData.deltaX = e.pageX - mainMouse.screenPosition.x;
 				mouseMovementEventData.deltaY = e.pageY - mainMouse.screenPosition.y;
-				mainMouse.screenPosition.x = e.pageX;
-				mainMouse.screenPosition.y = e.pageY;
+				mainMouse.screenPosition.x = e.pageX - canvas.offset().left;
+				mainMouse.screenPosition.y = e.pageY - canvas.offset().top;
 				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
 			});
 

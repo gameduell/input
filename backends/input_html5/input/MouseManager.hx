@@ -100,10 +100,12 @@ class MouseManager
 
 			jquery.mousemove(function(e) : Void
 			{
-				mouseMovementEventData.deltaX = e.pageX - mainMouse.screenPosition.x;
-				mouseMovementEventData.deltaY = e.pageY - mainMouse.screenPosition.y;
-				mainMouse.screenPosition.x = e.pageX - canvas.offset().left;
-				mainMouse.screenPosition.y = e.pageY - canvas.offset().top;
+				var calculatedScreenPositionX:Float = e.pageX - canvas.offset().left;
+				var calculatedScreenPositionY:Float = e.pageY - canvas.offset().top;
+				mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
+				mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
+				mainMouse.screenPosition.x = calculatedScreenPositionX;
+				mainMouse.screenPosition.y = calculatedScreenPositionY;
 				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
 			});
 

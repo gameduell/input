@@ -163,13 +163,12 @@ class MouseManager
 
 		if(untyped e.wheelDelta)
 		{
-			wheelDelta = Std.int(e.wheelDelta / 120.0);
+			wheelDelta = e.wheelDelta / 120.0;
 		}
 		else
 		{
-			wheelDelta = Std.int(-e.detail / 3.0);
+			wheelDelta = -e.detail / 3.0;
 		}
-
 		mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
 		mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
 		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);

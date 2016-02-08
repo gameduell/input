@@ -6,7 +6,10 @@
 			<js-source path="external-libs/js/jquery-1.11.1.min.js" applyTemplate="false"/>
             <js-source path="external-libs/js/CapsLock.compressed.js" applyTemplate="false"/>
     	</html5>
-
+        <electron>
+            <jquery path="external-libs/js/jquery-1.11.1.min.js"/>
+            <js-source path="external-libs/js/CapsLock.compressed.js"/>
+        </electron>
     </platform-config>
 
 </library>

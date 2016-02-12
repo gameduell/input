@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library xmlns="duell">
 
+    <duelllib name="html5_appdelegate" version="1.2.0+" />
+
     <platform-config>
     	<html5>
 			<js-source path="external-libs/js/jquery-1.11.1.min.js" applyTemplate="false"/>

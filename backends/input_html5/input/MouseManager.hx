@@ -37,9 +37,15 @@ import input.Mouse;
 import input.MouseButtonEventData;
 import html5_appdelegate.HTML5AppDelegate;
 
+typedef MouseDownCoordinates = {
+    var x : Int;
+    var y : Int;
+}
+
 @:access(input.Mouse)
 class MouseManager
 {
+    private static inline var MAX_CLICK_MOVE_DISTANCE: Int = 10;
 	private static var mouseInstance : MouseManager;
 
 	private var mainMouse : Mouse;
@@ -89,88 +95,176 @@ class MouseManager
 
 	private function initializeCallbacks(finishedCallback : Void -> Void)
 	{
-			jquery.ready(function(e):Void
-      {
-            jquery.mousedown(function(e:Dynamic){
-            	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
-            	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateDown;
-                mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-      });
+        var canvasWidth: Int = canvas.width();
+        var canvasHeight: Int = canvas.height();
+        var canvasContext: Element = canvas.context;
+        var downCoordinates: Map<MouseButton, MouseDownCoordinates> = new Map<MouseButton, MouseDownCoordinates>();
+        var inside: Bool = false;
 
-			jquery.mousemove(function(e) : Void
-			{
-				var calculatedScreenPositionX:Float = e.pageX - canvas.offset().left;
-				var calculatedScreenPositionY:Float = e.pageY - canvas.offset().top;
-				mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
-				mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
-				mainMouse.screenPosition.x = calculatedScreenPositionX;
-				mainMouse.screenPosition.y = calculatedScreenPositionY;
-				mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
-			});
+        jquery.ready(function(e):Void
+        {
+            jquery.mousedown(function(e:Dynamic)
+            {
+                var button: MouseButton = getButton(e.button);
+                if (e.toElement == canvasContext)
+                {
+                    inside = true;
+                    downCoordinates[button] = {x: Std.int(e.pageX - canvas.offset().left), y: Std.int(e.pageY - canvas.offset().top)};
+                    mouseButtonEventData.button = button;
+                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateDown;
+                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                }
+                else
+                {
+                    downCoordinates[button] = null;
+                }
+            });
 
-      jquery.mouseup(function(e:Dynamic)
-			{
-            	mouseButtonEventData.button = MouseButton.MouseButtonLeft;
-            	mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
-                mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-      });
+            jquery.mousemove(function(e) : Void
+            {
+                if (inside)
+                {
+                    var calculatedScreenPositionX: Int = e.pageX - canvas.offset().left;
+                    var calculatedScreenPositionY: Int = e.pageY - canvas.offset().top;
+                    mouseMovementEventData.deltaX = calculatedScreenPositionX - Std.int(mainMouse.screenPosition.x);
+                    mouseMovementEventData.deltaY = calculatedScreenPositionY - Std.int(mainMouse.screenPosition.y);
+                    mainMouse.screenPosition.x = calculatedScreenPositionX;
+                    mainMouse.screenPosition.y = calculatedScreenPositionY;
+                    mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+                }
+            });
+
+            jquery.mouseup(function(e:Dynamic)
+            {
+                var button: MouseButton = getButton(e.button);
+
+                if (downCoordinates[button] != null)
+                {
+                    mouseButtonEventData.button = button;
+                    if (inside)
+                    {
+                        // up
+                        mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
+                        mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                        mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    }
+                    else
+                    {
+                        // release outside
+                        mouseButtonEventData.newState = MouseButtonState.MouseButtonStateReleaseOutside;
+                        mainMouse.state[button] = MouseButtonState.MouseButtonStateReleaseOutside;
+                        mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    }
+                }
+
+                downCoordinates[button] == null;
+            });
 
 			jquery.click(function(e:Dynamic)
 			{
-				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
-				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateClick;
-				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
+                var button: MouseButton = getButton(e.button);
+                if (inside && downCoordinates[button] != null &&
+                    getDistance(downCoordinates[button].x, downCoordinates[button].y,
+                        Std.int(e.pageX - canvas.offset().left), Std.int(e.pageY - canvas.offset().top)) <= MAX_CLICK_MOVE_DISTANCE)
+                {
+                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateClick;
+                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                }
 			});
 
-			jquery.dblclick(function(e:Dynamic)
-			{
-				mouseButtonEventData.button = MouseButton.MouseButtonLeft;
-				mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateDoubleClick;
-				mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-				mainMouse.state[MouseButton.MouseButtonLeft] = MouseButtonState.MouseButtonStateUp;
-			});
+            jquery.dblclick(function(e:Dynamic)
+            {
+                if (inside)
+                {
+                    var button: MouseButton = getButton(e.button);
+                    mouseButtonEventData.button = button;
+                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateDoubleClick;
+                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                }
+            });
 
-			/// Mousewheel Events
-			if (untyped Browser.window.addEventListener)
-			{
-				// IE9, Chrome, Safari, Opera
-				untyped Browser.window.addEventListener("mousewheel", mouseWheelHandler, false);
-				// Firefox
-				untyped Browser.window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
-			}
-			else
-			{	// IE 6/7/8
-				untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);
-			}
+            jquery.mouseenter(function(e:Dynamic)
+            {
+                if (canvasContext == e.toElement)
+                {
+                    inside = true;
+                }
+            });
 
-			finishedCallback();
+            jquery.mouseleave(function(e:Dynamic)
+            {
+                if (canvasContext == e.fromElement)
+                {
+                    inside = false;
+                }
+            });
+
+            var mouseWheelHandler : Dynamic -> Void = function (e: Dynamic): Void
+            {
+                if (inside)
+                {
+                    e.preventDefault();
+                    var wheelDelta: Float = 0.0;
+
+                    if(untyped Browser.window.event)
+                    {
+                        untyped e = Browser.window.event;
+                    }
+
+                    if(untyped e.wheelDelta)
+                    {
+                        wheelDelta = e.wheelDelta / 120.0;
+                    }
+                    else
+                    {
+                        wheelDelta = -e.detail / 3.0;
+                    }
+                    mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
+                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
+                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                }
+            };
+
+
+            /// Mousewheel Events
+            if (untyped Browser.window.addEventListener)
+            {
+                // IE9, Chrome, Safari, Opera
+                untyped Browser.window.addEventListener("mousewheel", mouseWheelHandler, false);
+                // Firefox
+                untyped Browser.window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
+            }
+            else
+            {	// IE 6/7/8
+                untyped Browser.window.attachEvent("onmousewheel", mouseWheelHandler);
+            }
+
+            finishedCallback();
 		});
 	}
 
-	private function mouseWheelHandler(e: Dynamic): Void
-	{
-		var wheelDelta: Float = 0.0;
+    private static inline function getButton(id: Int): MouseButton
+    {
+        switch (id)
+        {
+            case 0:
+                return MouseButton.MouseButtonLeft;
+            case 1:
+                return MouseButton.MouseButtonMiddle;
+            case 2:
+                return MouseButton.MouseButtonRight;
+            default:
+                return MouseButton.MouseButtonOther('button$id');
+        }
+    }
 
-		if(untyped Browser.window.event)
-		{
-			untyped e = Browser.window.event;
-		}
-
-		if(untyped e.wheelDelta)
-		{
-			wheelDelta = e.wheelDelta / 120.0;
-		}
-		else
-		{
-			wheelDelta = -e.detail / 3.0;
-		}
-		mouseButtonEventData.button = MouseButton.MouseButtonWheel(wheelDelta);
-		mouseButtonEventData.newState = MouseButtonState.MouseButtonStateNone;
-		mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-	}
+    private static inline function getDistance(ax: Int, ay: Int, bx: Int, by: Int): Int
+    {
+        return Std.int(Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2)));
+    }
 }

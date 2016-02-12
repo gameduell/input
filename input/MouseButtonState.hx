@@ -37,6 +37,9 @@ enum MouseButtonState
     /** Button state up. */
     MouseButtonStateUp;
 
+    /** Button state which indicates that it is released outside of the scene. */
+    MouseButtonStateReleaseOutside;
+
     /** Button state click. */
     MouseButtonStateClick;
 

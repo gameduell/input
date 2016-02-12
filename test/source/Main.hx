@@ -117,7 +117,7 @@ class Main
 					}
 				case MouseButton.MouseButtonWheel:
 					{
-						trace('Mouse: MouseButtonWheel, $state');
+						trace('Mouse: MouseButtonWheel, delta=${mouseButtonEventData.button}');
 					}
 				case MouseButton.MouseButtonOther:
 					{
@@ -235,6 +235,9 @@ class Main
 
 			case MouseButtonState.MouseButtonStateUp:
 				return "Up";
+
+			case MouseButtonState.MouseButtonStateReleaseOutside:
+				return "Outside";
 		}
 	}
 

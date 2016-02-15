@@ -126,28 +126,39 @@ class MouseManager
         {
             jquery.mousedown(function(e:Dynamic)
             {
-                var button: MouseButton = getButton(e.button);
-                if (button != null && e.target == canvas.context)
+                if (e.target == canvas.context)
                 {
                     if (!entered)
                     {
+                        // First time entry by pressing the button
                         entered = true;
                         mainMouse.inside = true;
                         dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
                     }
 
-                    anyButtonDown = true;
+                    var button: MouseButton = getButton(e.button);
+                    if (button != null)
+                    {
+                        anyButtonDown = true;
 
-                    var coordinates: Vector2 = new Vector2();
-                    coordinates.setXY(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
-                    buttonDownCoordinates[button] = coordinates;
+                        var coordinates: Vector2 = new Vector2();
+                        coordinates.setXY(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
+                        buttonDownCoordinates[button] = coordinates;
 
-                    dispatchButtonState(button, MouseButtonState.MouseButtonStateDown, false);
+                        dispatchButtonState(button, MouseButtonState.MouseButtonStateDown, false);
+                    }
                 }
             });
 
             jquery.mousemove(function(e) : Void
             {
+                if (!entered && e.target == canvas.context)
+                {
+                    // First time entry by moveing the mouse
+                    entered = true;
+                    mainMouse.inside = true;
+                }
+
                 if (anyButtonDown || mainMouse.inside)
                 {
                     dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
@@ -217,6 +228,14 @@ class MouseManager
 
             var mouseWheelHandler : Dynamic -> Void = function (e: Dynamic): Void
             {
+                if (!entered && e.target == canvas.context)
+                {
+                    // First time entry by scrolling
+                    entered = true;
+                    mainMouse.inside = true;
+                    dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
+                }
+
                 if (mainMouse.inside)
                 {
                     // Prevents the page scrolling while mouse pointer is inside of the scene

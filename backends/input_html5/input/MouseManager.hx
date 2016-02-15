@@ -91,30 +91,58 @@ class MouseManager
 		mouseInstance.attachToNative(finishedCallback);
 	}
 
+    private function dispatchMouseMove(x: Float, y: Float): Void
+    {
+        mouseMovementEventData.deltaX = x - mainMouse.screenPosition.x;
+        mouseMovementEventData.deltaY = y - mainMouse.screenPosition.y;
+        mainMouse.screenPosition.x = x;
+        mainMouse.screenPosition.y = y;
+        mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+    }
+
+    private function dispatchButtonState(button: MouseButton, state: MouseButtonState, blink: Bool): Void
+    {
+        var oldState: MouseButtonState = mouseButtonEventData.newState;
+        mouseButtonEventData.button = button;
+        mouseButtonEventData.newState = state;
+        mainMouse.state[button] = state;
+        mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+
+        if (blink)
+        {
+            mainMouse.state[button] = oldState;
+        }
+    }
+
 	private function attachToNative(finishedCallback : Void -> Void)
 	{
         var buttonDownCoordinates: Map<MouseButton, Vector2> = new Map<MouseButton, Vector2>();
         var anyButtonDown: Bool = false;
         var validButtonClick: Bool = false;
         var lastButtonUpCoordinates: Vector2 = null;
+        var entered: Bool = false;
 
         jquery.ready(function(e):Void
         {
             jquery.mousedown(function(e:Dynamic)
             {
                 var button: MouseButton = getButton(e.button);
-                if (button != null && e.toElement == canvas.context)
+                if (button != null && e.target == canvas.context)
                 {
+                    if (!entered)
+                    {
+                        entered = true;
+                        mainMouse.inside = true;
+                        dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
+                    }
+
                     anyButtonDown = true;
 
                     var coordinates: Vector2 = new Vector2();
                     coordinates.setXY(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
                     buttonDownCoordinates[button] = coordinates;
 
-                    mouseButtonEventData.button = button;
-                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateDown;
-                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    dispatchButtonState(button, MouseButtonState.MouseButtonStateDown, false);
                 }
             });
 
@@ -122,13 +150,7 @@ class MouseManager
             {
                 if (anyButtonDown || mainMouse.inside)
                 {
-                    var calculatedScreenPositionX: Int = e.pageX - canvas.offset().left;
-                    var calculatedScreenPositionY: Int = e.pageY - canvas.offset().top;
-                    mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
-                    mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
-                    mainMouse.screenPosition.x = calculatedScreenPositionX;
-                    mainMouse.screenPosition.y = calculatedScreenPositionY;
-                    mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+                    dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
                 }
             });
 
@@ -137,10 +159,7 @@ class MouseManager
                 var button: MouseButton = getButton(e.button);
                 if (button != null && buttonDownCoordinates[button] != null)
                 {
-                    mouseButtonEventData.button = button;
-                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
-                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
+                    dispatchButtonState(button, MouseButtonState.MouseButtonStateUp, false);
 
                     lastButtonUpCoordinates = buttonDownCoordinates[button];
                     buttonDownCoordinates.remove(button);
@@ -163,11 +182,7 @@ class MouseManager
 
                 if (validButtonClick)
                 {
-                    mouseButtonEventData.button = button;
-                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateClick;
-                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                    dispatchButtonState(button, MouseButtonState.MouseButtonStateClick, true);
                 }
 			});
 
@@ -176,33 +191,24 @@ class MouseManager
                 var button: MouseButton = getButton(e.button);
                 if (validButtonClick && button != null)
                 {
-                    mouseButtonEventData.button = button;
-                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateDoubleClick;
-                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                    dispatchButtonState(button, MouseButtonState.MouseButtonStateDoubleClick, true);
                 }
             });
 
             jquery.mouseenter(function(e:Dynamic)
             {
-                if (canvas.context == e.toElement && !mainMouse.inside)
+                if (canvas.context == e.target && !mainMouse.inside)
                 {
+                    entered = true;
                     mainMouse.inside = true;
 
-                    var calculatedScreenPositionX: Int = Std.int(e.pageX) - canvas.offset().left;
-                    var calculatedScreenPositionY: Int = Std.int(e.pageY) - canvas.offset().top;
-                    mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
-                    mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
-                    mainMouse.screenPosition.x = calculatedScreenPositionX;
-                    mainMouse.screenPosition.y = calculatedScreenPositionY;
-                    mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
+                    dispatchMouseMove(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
                 }
             });
 
             jquery.mouseleave(function(e:Dynamic)
             {
-                if (canvas.context == e.fromElement && mainMouse.inside)
+                if (canvas.context == e.target && mainMouse.inside)
                 {
                     mainMouse.inside = false;
                     mainMouse.onMovementEvent.dispatch(mouseMovementEventData);

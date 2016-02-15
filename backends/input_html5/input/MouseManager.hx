@@ -26,21 +26,15 @@
 
 package input;
 
+import types.Vector2;
 import js.JQuery;
-import js.html.Element;
-import input.Mouse;
-
-import js.JQuery;
-
 import js.Browser;
+import js.html.Element;
+
 import input.Mouse;
 import input.MouseButtonEventData;
-import html5_appdelegate.HTML5AppDelegate;
 
-typedef MouseDownCoordinates = {
-    var x : Int;
-    var y : Int;
-}
+import html5_appdelegate.HTML5AppDelegate;
 
 @:access(input.Mouse)
 class MouseManager
@@ -64,6 +58,10 @@ class MouseManager
 
 		mouseButtonEventData = new MouseButtonEventData();
 		mouseMovementEventData = new MouseMovementEventData();
+
+        mainMouse.onCursorChange.add(updateHandCursor);
+        mainMouse.inside = false;
+        updateHandCursor(mainMouse);
 	}
 
 	public function getMainMouse() : Mouse
@@ -90,45 +88,44 @@ class MouseManager
 	{
 		mouseInstance = new MouseManager();
 
-		mouseInstance.initializeCallbacks(finishedCallback);
+		mouseInstance.attachToNative(finishedCallback);
 	}
 
-	private function initializeCallbacks(finishedCallback : Void -> Void)
+	private function attachToNative(finishedCallback : Void -> Void)
 	{
-        var canvasWidth: Int = canvas.width();
-        var canvasHeight: Int = canvas.height();
-        var canvasContext: Element = canvas.context;
-        var downCoordinates: Map<MouseButton, MouseDownCoordinates> = new Map<MouseButton, MouseDownCoordinates>();
-        var inside: Bool = false;
+        var buttonDownCoordinates: Map<MouseButton, Vector2> = new Map<MouseButton, Vector2>();
+        var anyButtonDown: Bool = false;
+        var validButtonClick: Bool = false;
+        var lastButtonUpCoordinates: Vector2 = null;
 
         jquery.ready(function(e):Void
         {
             jquery.mousedown(function(e:Dynamic)
             {
                 var button: MouseButton = getButton(e.button);
-                if (e.toElement == canvasContext)
+                if (button != null && e.toElement == canvas.context)
                 {
-                    inside = true;
-                    downCoordinates[button] = {x: Std.int(e.pageX - canvas.offset().left), y: Std.int(e.pageY - canvas.offset().top)};
+                    anyButtonDown = true;
+
+                    var coordinates: Vector2 = new Vector2();
+                    coordinates.setXY(e.pageX - canvas.offset().left, e.pageY - canvas.offset().top);
+                    buttonDownCoordinates[button] = coordinates;
+
                     mouseButtonEventData.button = button;
                     mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDown;
                     mainMouse.state[button] = MouseButtonState.MouseButtonStateDown;
                     mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
                 }
-                else
-                {
-                    downCoordinates[button] = null;
-                }
             });
 
             jquery.mousemove(function(e) : Void
             {
-                if (inside)
+                if (anyButtonDown || mainMouse.inside)
                 {
                     var calculatedScreenPositionX: Int = e.pageX - canvas.offset().left;
                     var calculatedScreenPositionY: Int = e.pageY - canvas.offset().top;
-                    mouseMovementEventData.deltaX = calculatedScreenPositionX - Std.int(mainMouse.screenPosition.x);
-                    mouseMovementEventData.deltaY = calculatedScreenPositionY - Std.int(mainMouse.screenPosition.y);
+                    mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
+                    mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
                     mainMouse.screenPosition.x = calculatedScreenPositionX;
                     mainMouse.screenPosition.y = calculatedScreenPositionY;
                     mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
@@ -138,36 +135,35 @@ class MouseManager
             jquery.mouseup(function(e:Dynamic)
             {
                 var button: MouseButton = getButton(e.button);
-
-                if (downCoordinates[button] != null)
+                if (button != null && buttonDownCoordinates[button] != null)
                 {
                     mouseButtonEventData.button = button;
-                    if (inside)
-                    {
-                        // up
-                        mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
-                        mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
-                        mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-                    }
-                    else
-                    {
-                        // release outside
-                        mouseButtonEventData.newState = MouseButtonState.MouseButtonStateReleaseOutside;
-                        mainMouse.state[button] = MouseButtonState.MouseButtonStateReleaseOutside;
-                        mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
-                    }
-                }
+                    mouseButtonEventData.newState = MouseButtonState.MouseButtonStateUp;
+                    mainMouse.state[button] = MouseButtonState.MouseButtonStateUp;
+                    mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
 
-                downCoordinates[button] == null;
+                    lastButtonUpCoordinates = buttonDownCoordinates[button];
+                    buttonDownCoordinates.remove(button);
+                    anyButtonDown = buttonDownCoordinates.keys().hasNext();
+                }
+                else
+                {
+                    lastButtonUpCoordinates = null;
+                }
             });
 
 			jquery.click(function(e:Dynamic)
 			{
                 var button: MouseButton = getButton(e.button);
-                if (inside && downCoordinates[button] != null &&
-                    getDistance(downCoordinates[button].x, downCoordinates[button].y,
-                        Std.int(e.pageX - canvas.offset().left), Std.int(e.pageY - canvas.offset().top)) <= MAX_CLICK_MOVE_DISTANCE)
+
+                validButtonClick = button != null &&
+                        mainMouse.inside &&
+                        lastButtonUpCoordinates != null &&
+                        Vector2.distance(lastButtonUpCoordinates, mainMouse.screenPosition) <= MAX_CLICK_MOVE_DISTANCE;
+
+                if (validButtonClick)
                 {
+                    mouseButtonEventData.button = button;
                     mouseButtonEventData.newState = MouseButtonState.MouseButtonStateClick;
                     mainMouse.state[button] = MouseButtonState.MouseButtonStateClick;
                     mainMouse.onButtonEvent.dispatch(mouseButtonEventData);
@@ -177,9 +173,9 @@ class MouseManager
 
             jquery.dblclick(function(e:Dynamic)
             {
-                if (inside)
+                var button: MouseButton = getButton(e.button);
+                if (validButtonClick && button != null)
                 {
-                    var button: MouseButton = getButton(e.button);
                     mouseButtonEventData.button = button;
                     mouseButtonEventData.newState = MouseButtonState.MouseButtonStateDoubleClick;
                     mainMouse.state[button] = MouseButtonState.MouseButtonStateDoubleClick;
@@ -190,25 +186,36 @@ class MouseManager
 
             jquery.mouseenter(function(e:Dynamic)
             {
-                if (canvasContext == e.toElement)
+                if (canvas.context == e.toElement && !mainMouse.inside)
                 {
-                    inside = true;
+                    mainMouse.inside = true;
+
+                    var calculatedScreenPositionX: Int = Std.int(e.pageX) - canvas.offset().left;
+                    var calculatedScreenPositionY: Int = Std.int(e.pageY) - canvas.offset().top;
+                    mouseMovementEventData.deltaX = calculatedScreenPositionX - mainMouse.screenPosition.x;
+                    mouseMovementEventData.deltaY = calculatedScreenPositionY - mainMouse.screenPosition.y;
+                    mainMouse.screenPosition.x = calculatedScreenPositionX;
+                    mainMouse.screenPosition.y = calculatedScreenPositionY;
+                    mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
                 }
             });
 
             jquery.mouseleave(function(e:Dynamic)
             {
-                if (canvasContext == e.fromElement)
+                if (canvas.context == e.fromElement && mainMouse.inside)
                 {
-                    inside = false;
+                    mainMouse.inside = false;
+                    mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
                 }
             });
 
             var mouseWheelHandler : Dynamic -> Void = function (e: Dynamic): Void
             {
-                if (inside)
+                if (mainMouse.inside)
                 {
+                    // Prevents the page scrolling while mouse pointer is inside of the scene
                     e.preventDefault();
+
                     var wheelDelta: Float = 0.0;
 
                     if(untyped Browser.window.event)
@@ -248,7 +255,7 @@ class MouseManager
 		});
 	}
 
-    private static inline function getButton(id: Int): MouseButton
+    private function getButton(id: Int): MouseButton
     {
         switch (id)
         {
@@ -256,15 +263,14 @@ class MouseManager
                 return MouseButton.MouseButtonLeft;
             case 1:
                 return MouseButton.MouseButtonMiddle;
-            case 2:
-                return MouseButton.MouseButtonRight;
             default:
-                return MouseButton.MouseButtonOther('button$id');
+                // The rest of the buttons are not tracked in HTML5
+                return null;
         }
     }
 
-    private static inline function getDistance(ax: Int, ay: Int, bx: Int, by: Int): Int
+    private function updateHandCursor(mouse: Mouse): Void
     {
-        return Std.int(Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2)));
+        canvas.context.style.cursor = mouse.usePointerCursor ? 'pointer' : 'auto';
     }
 }

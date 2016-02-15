@@ -136,6 +136,12 @@ class Main
 			var posX: Float = MouseManager.instance().getMainMouse().screenPosition.x;
 			var posY: Float = MouseManager.instance().getMainMouse().screenPosition.y;
 			trace('Mouse: MouseMovement ($deltaX, $deltaY) - ($posX, $posY)');
+
+			var useHandCursor: Bool = posX < 100 && posY < 100;
+			if (MouseManager.instance().getMainMouse().usePointerCursor != useHandCursor)
+			{
+				MouseManager.instance().getMainMouse().usePointerCursor = useHandCursor;
+			}
 		});
 		#end
 
@@ -235,9 +241,6 @@ class Main
 
 			case MouseButtonState.MouseButtonStateUp:
 				return "Up";
-
-			case MouseButtonState.MouseButtonStateReleaseOutside:
-				return "Outside";
 		}
 	}
 

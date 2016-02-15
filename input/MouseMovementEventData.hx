@@ -35,12 +35,12 @@ class MouseMovementEventData
     /**
         Retrieves the deltaX of the movement event.
      */
-    public var deltaX(default, default) : Int;
+    public var deltaX(default, default) : Float;
 
     /**
         Retrieves the deltaY of the movement event.
      */
-    public var deltaY(default, default) : Int;
+    public var deltaY(default, default) : Float;
 
     /**
         Constructor, initializes all the fields.

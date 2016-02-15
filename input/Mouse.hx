@@ -59,6 +59,21 @@ class Mouse
      */
 	public var screenPosition(default, null) : Vector2;
 
+    /**
+        Retrieves whether or not the mouse cursor is within the bounds of the scene.
+     */
+    public var inside(default, default): Bool = false;
+
+    /**
+        If set to true the mouse will use pointer (hand) instead of default cursor.
+     */
+	public var usePointerCursor(default, set): Bool = false;
+
+	/**
+        Dispatched when the usePointerCursor is changed.
+     */
+	public var onCursorChange(default, null) : Signal1<Mouse>;
+
 	/**
         Called from within the package, should not be created from the outside.
      */
@@ -72,10 +87,21 @@ class Mouse
 		onButtonEvent = new Signal1();
 		onMovementEvent = new Signal1();
 		screenPosition = new Vector2();
+		onCursorChange = new Signal1();
 	}
 
 	private function get_screenPosition() : Vector2
 	{
 	    return screenPosition;
+	}
+
+	private function set_usePointerCursor(v: Bool): Bool
+	{
+		if (v != usePointerCursor)
+		{
+			usePointerCursor = v;
+			onCursorChange.dispatch(this);
+		}
+		return v;
 	}
 }

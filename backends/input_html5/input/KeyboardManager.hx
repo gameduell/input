@@ -37,6 +37,12 @@ class KeyboardManager
 {
 	private static var keyboardInstance: KeyboardManager;
 
+	private static var preventedKeys: Array<Int> = [KeyboardEvent.DOM_VK_BACK_SPACE,
+	KeyboardEvent.DOM_VK_LEFT,
+	KeyboardEvent.DOM_VK_UP,
+	KeyboardEvent.DOM_VK_RIGHT,
+	KeyboardEvent.DOM_VK_DOWN];
+
 	private var mainKeyboard: Keyboard;
 
 	private var keyboardEventData: KeyboardEventData;
@@ -81,7 +87,7 @@ class KeyboardManager
 				mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
 
                 // Back space key is disabled as in the browsers it triggers history back action.
-                return e.which != KeyboardEvent.DOM_VK_BACK_SPACE;
+				return preventedKeys.indexOf(e.which) == -1;
 			});
 
             jquery.keypress(function(e:Dynamic)

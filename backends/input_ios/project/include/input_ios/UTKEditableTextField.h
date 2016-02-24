@@ -45,11 +45,11 @@
 
 @property (nonatomic, strong) NSString *string;
 @property (nonatomic, readwrite, weak) id<UTKEditableTextFieldDelegate> delegate;
+@property (nonatomic, readonly,  strong) UIView *keyboardView;
 
 - (BOOL)showKeyboard;
 - (BOOL)hideKeyboard;
 
-- (UIView *)keyBoardView;
 - (void)setValidCharacters:(NSCharacterSet *)set;
 - (void)attachToView:(UIView *)view;
 

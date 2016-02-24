@@ -26,30 +26,101 @@
 
 #import "input_ios/UTKEditableTextField.h"
 
-@protocol UTKKeyboardViewDelegate <NSObject>
-- (void)keyboardViewDidInsertText:(NSString *)text;
-- (void)keyboardViewDidDeleteBackward;
-- (void)keyboardViewDidHideKeyBoard;
+#pragma mark - UITextPosition and UITextRange
 
-@optional
-- (void)keyboardViewDidShowKeyBoard;
+@interface UTKIndexedPosition : UITextPosition {
+    NSUInteger _index;
+}
+@property (nonatomic) NSUInteger index;
++ (UTKIndexedPosition *)positionWithIndex:(NSUInteger)index;
+
+@end
+
+@interface UTKIndexedRange : UITextRange {
+    NSRange _range;
+}
+@property (nonatomic) NSRange range;
++ (UTKIndexedRange *)rangeWithNSRange:(NSRange)range;
+
+@end
+
+@implementation UTKIndexedPosition
+
+@synthesize index = _index;
+
++ (UTKIndexedPosition *)positionWithIndex:(NSUInteger)index {
+    UTKIndexedPosition *pos = [[UTKIndexedPosition alloc] init];
+    pos.index = index;
+    return pos;
+}
+
+@end
+
+@implementation UTKIndexedRange
+
+@synthesize range = _range;
+
++ (UTKIndexedRange *)rangeWithNSRange:(NSRange)nsrange {
+    if (nsrange.location == NSNotFound)
+        return nil;
+    UTKIndexedRange *range = [[UTKIndexedRange alloc] init];
+    range.range = nsrange;
+    return range;
+}
+
+- (UITextPosition *)start {
+    return [UTKIndexedPosition positionWithIndex:self.range.location];
+}
+
+- (UITextPosition *)end {
+        return [UTKIndexedPosition positionWithIndex:(self.range.location + self.range.length)];
+}
+
+-(BOOL)isEmpty {
+    return (self.range.length == 0);
+}
+
+@end
+
+#pragma mark - UTKKeyboardView
+
+@protocol UTKKeyboardViewDelegate <NSObject>
+@property (nonatomic) NSString* string;
+- (bool)        isTextValid:(NSString* )text;
+- (void)        keyboardHidden;
+
 @end
 
 
-@interface UTKKeyboardView : UIView <UIKeyInput>
+@interface UTKKeyboardView : UIView <UITextInput>
+@property (nonatomic) NSRange selectedNSRange; // Selected text range.
 @property (nonatomic, weak) id<UTKKeyboardViewDelegate> delegate;
+@property (nonatomic) UITextInputStringTokenizer *tokenizer;
 - (BOOL)showKeyboard;
 - (BOOL)hideKeyboard;
 @end
 
 @implementation UTKKeyboardView
 
+@synthesize markedTextStyle = _markedTextStyle;
+@synthesize inputDelegate = _inputDelegate;
+@synthesize tokenizer = _tokenizer;
 
-#pragma mark - UIKeyInput delegate methods
+#pragma mark - UITextInput important delegate methods
 
 -(BOOL)hasText
 {
     return YES;
+}
+
+- (UITextInputStringTokenizer *) tokenizer
+{
+    if (_tokenizer == nil)
+    {
+        _tokenizer = [[UITextInputStringTokenizer alloc] initWithTextInput:self];
+    }
+
+    return _tokenizer;
 }
 
 - (void)insertText:(NSString *)text
@@ -58,28 +129,322 @@
     {
         [self hideKeyboard];
     }
-    else if([self.delegate respondsToSelector:@selector(keyboardViewDidInsertText:)])
+    else
     {
-        [self.delegate keyboardViewDidInsertText:text];
+        NSMutableString* currentText = [NSMutableString stringWithString:
+                                                            self.delegate.string];
+
+        if (self.selectedNSRange.length > 0)
+        {
+            [currentText replaceCharactersInRange:self.selectedNSRange withString:text];
+        }
+        else
+        {
+            [currentText insertString:text atIndex:self.selectedNSRange.location];
+        }
+
+        self.delegate.string = currentText;
+
+        [self resetSelection];
     }
+}
+
+- (BOOL)shouldChangeTextInRange:(UITextRange *)range
+                replacementText:(NSString *)text
+{
+
+    UTKIndexedRange *indexedRange = (UTKIndexedRange *)range;
+    NSMutableString* currentText = [NSMutableString stringWithString:
+                                                self.delegate.string];
+
+    [currentText replaceCharactersInRange:indexedRange.range withString:text];
+
+    return [self.delegate isTextValid:currentText];
 }
 
 - (void)deleteBackward
 {
-    if ([self.delegate respondsToSelector:@selector(keyboardViewDidDeleteBackward)])
+    [self resetSelection]; /// always go from the right when deleting
+
+    /// check if the label is empty
+    if (self.delegate.string.length > 0)
     {
-        [self.delegate keyboardViewDidDeleteBackward];
+        self.delegate.string = [self.delegate.string
+                            stringByReplacingCharactersInRange:NSMakeRange([self.delegate.string length] - 1, 1)
+                                                    withString:@""];
     }
+
+    [self resetSelection]; /// go back to normal
 }
 
+- (UITextRange *)selectedTextRange {
+
+    return [UTKIndexedRange rangeWithNSRange:self.selectedNSRange];
+}
+
+- (void)setSelectedTextRange:(UITextRange *)range
+{
+    UTKIndexedRange *r = (UTKIndexedRange *)range;
+
+    NSString* currentText = self.delegate.string;
+
+    /// CLAMP
+    int location = r.range.location;
+    int length = r.range.length;
+
+    if (location > currentText.length)
+    {
+        location = currentText.length;
+    }
+
+    if (location + length > currentText.length)
+    {
+        length = currentText.length - location;
+    }
+
+    self.selectedNSRange = NSMakeRange(location, length);
+}
+
+- (UITextRange *)markedTextRange {
+    /// we don't care about marking
+    return [UTKIndexedRange rangeWithNSRange:NSMakeRange(NSNotFound, 0)];
+}
+
+- (NSString *)textInRange:(UITextRange *)range
+{
+    UTKIndexedRange *r = (UTKIndexedRange *)range;
+    NSString* currentText = self.delegate.string;
+
+    /// CLAMP
+    int location = r.range.location;
+    int length = r.range.length;
+
+    if (location > currentText.length)
+    {
+        location = currentText.length;
+    }
+
+    if (location + length > currentText.length)
+    {
+        length = currentText.length - location;
+    }
+
+    return [self.delegate.string substringWithRange:NSMakeRange(location, length)];
+}
+
+- (void)replaceRange:(UITextRange *)range withText:(NSString *)text
+{
+    NSMutableString* currentText = [NSMutableString stringWithString:
+                                                            self.delegate.string];
+
+    UTKIndexedRange *r = (UTKIndexedRange *)range;
+
+    [currentText replaceCharactersInRange:r.range withString:text];
+
+    self.delegate.string = currentText;
+
+    [self resetSelection];
+}
+
+- (void)resetSelection
+{
+    self.selectedNSRange =
+        NSMakeRange(self.delegate.string.length,
+                    0);
+}
+
+- (void)unmarkText
+{
+    [self resetSelection];
+}
+
+#pragma mark - UITextInput boilerplate delegate methods
+
+- (void)setMarkedText:(NSString *)markedText selectedRange:(NSRange)selectedRange
+{
+    /// we don't care about market text
+    return;
+}
+
+- (UITextPosition *)beginningOfDocument
+{
+	// For this sample, the document always starts at index 0 and is the full length of the text storage.
+    return [UTKIndexedPosition positionWithIndex:0];
+}
+
+- (UITextPosition *)endOfDocument
+{
+	// For this sample, the document always starts at index 0 and is the full length of the text storage.
+    return [UTKIndexedPosition positionWithIndex:self.delegate.string.length];
+}
+
+- (UITextRange *)textRangeFromPosition:(UITextPosition *)fromPosition toPosition:(UITextPosition *)toPosition
+{
+	// Generate IndexedPosition instances that wrap the to and from ranges.
+    UTKIndexedPosition *fromIndexedPosition = (UTKIndexedPosition *)fromPosition;
+    UTKIndexedPosition *toIndexedPosition = (UTKIndexedPosition *)toPosition;
+    NSRange range = NSMakeRange(MIN(fromIndexedPosition.index, toIndexedPosition.index), ABS(toIndexedPosition.index - fromIndexedPosition.index));
+
+    return [UTKIndexedRange rangeWithNSRange:range];
+}
+
+- (UITextPosition *)positionFromPosition:(UITextPosition *)position offset:(NSInteger)offset
+{
+	// Generate IndexedPosition instance, and increment index by offset.
+    UTKIndexedPosition *indexedPosition = (UTKIndexedPosition *)position;
+    NSInteger end = indexedPosition.index + offset;
+	// Verify position is valid in document.
+    if (end > self.delegate.string.length || end < 0) {
+        return nil;
+    }
+
+    return [UTKIndexedPosition positionWithIndex:end];
+}
+
+- (UITextPosition *)positionFromPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction offset:(NSInteger)offset
+{
+    // Note that this sample assumes left-to-right text direction.
+    UTKIndexedPosition *indexedPosition = (UTKIndexedPosition *)position;
+    NSInteger newPosition = indexedPosition.index;
+
+    switch ((NSInteger)direction) {
+        case UITextLayoutDirectionRight:
+            newPosition += offset;
+            break;
+        case UITextLayoutDirectionLeft:
+            newPosition -= offset;
+            break;
+        UITextLayoutDirectionUp:
+        UITextLayoutDirectionDown:
+			// This sample does not support vertical text directions.
+            break;
+    }
+
+    // Verify new position valid in document.
+
+    if (newPosition < 0)
+        newPosition = 0;
+
+    if (newPosition > self.delegate.string.length)
+        newPosition = self.delegate.string.length;
+
+    return [UTKIndexedPosition positionWithIndex:newPosition];
+}
+
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other
+{
+    UTKIndexedPosition *indexedPosition = (UTKIndexedPosition *)position;
+    UTKIndexedPosition *otherIndexedPosition = (UTKIndexedPosition *)other;
+
+	// For this sample, simply compare position index values.
+    if (indexedPosition.index < otherIndexedPosition.index) {
+        return NSOrderedAscending;
+    }
+    if (indexedPosition.index > otherIndexedPosition.index) {
+        return NSOrderedDescending;
+    }
+    return NSOrderedSame;
+}
+
+- (NSInteger)offsetFromPosition:(UITextPosition *)from
+                     toPosition:(UITextPosition *)toPosition
+{
+    UTKIndexedPosition *fromIndexedPosition = (UTKIndexedPosition *)from;
+    UTKIndexedPosition *toIndexedPosition = (UTKIndexedPosition *)toPosition;
+    return (toIndexedPosition.index - fromIndexedPosition.index);
+}
+
+- (UITextPosition *)positionWithinRange:(UITextRange *)range
+                    farthestInDirection:(UITextLayoutDirection)direction
+{
+    // Simplified to assume left-to-right text direction.
+    UTKIndexedRange *indexedRange = (UTKIndexedRange *)range;
+    NSInteger position;
+
+    switch (direction) {
+        case UITextLayoutDirectionUp:
+        case UITextLayoutDirectionLeft:
+            position = indexedRange.range.location;
+            break;
+        case UITextLayoutDirectionRight:
+        case UITextLayoutDirectionDown:
+            position = indexedRange.range.location + indexedRange.range.length;
+            break;
+    }
+
+    return [UTKIndexedPosition positionWithIndex:position];
+}
+
+- (UITextRange *)characterRangeByExtendingPosition:(UITextPosition *)position
+                                       inDirection:(UITextLayoutDirection)direction
+{
+    // Simplified to assume left-to-right text direction.
+    UTKIndexedPosition *pos = (UTKIndexedPosition *)position;
+    NSRange result;
+
+    switch (direction) {
+        case UITextLayoutDirectionUp:
+        case UITextLayoutDirectionLeft:
+            result = NSMakeRange(pos.index - 1, 1);
+            break;
+        case UITextLayoutDirectionRight:
+        case UITextLayoutDirectionDown:
+            result = NSMakeRange(pos.index, 1);
+            break;
+    }
+
+    return [UTKIndexedRange rangeWithNSRange:result];
+}
+
+- (UITextWritingDirection)baseWritingDirectionForPosition:(UITextPosition *)position inDirection:(UITextStorageDirection)direction
+{
+    /// writing direction not implemented
+    return UITextWritingDirectionLeftToRight;
+}
+
+- (void)setBaseWritingDirection:(UITextWritingDirection)writingDirection forRange:(UITextRange *)range
+{
+    /// writing direction not implemented
+}
+
+- (CGRect)firstRectForRange:(UITextRange *)range
+{
+    /// simplified for this use case
+    return CGRectMake(0, 0, 0, 0);
+}
+
+- (CGRect)caretRectForPosition:(UITextPosition *)position
+{
+    /// simplified for this use case
+    return CGRectMake(0, 0, 0, 0);
+}
+
+- (UITextPosition *)closestPositionToPoint:(CGPoint)point
+{
+    /// we don't care about hit testing
+    return nil;
+}
+
+- (UITextRange *)characterRangeAtPoint:(CGPoint)point
+{
+    /// we don't care about hit testing
+    return nil;
+}
+
+- (UITextPosition *)closestPositionToPoint:(CGPoint)point
+                               withinRange:(UITextRange *)range
+{
+    /// we don't care about hit testing
+    return nil;
+}
 
 #pragma mark - UIResponder methods
 
 - (BOOL)canResignFirstResponder
 {
-    if ([self.delegate respondsToSelector:@selector(keyboardViewDidHideKeyBoard)])
+    if ([self.delegate respondsToSelector:@selector(keyboardHidden)])
     {
-        [self.delegate keyboardViewDidHideKeyBoard];
+        [self.delegate keyboardHidden];
     }
     return YES;
 }
@@ -88,7 +453,6 @@
 {
     return YES;
 }
-
 
 #pragma mark - UTKKeyboardViewDelegate delegate methods
 
@@ -116,16 +480,18 @@
 
 @end
 
-
 @interface UTKEditableTextField () <UTKKeyboardViewDelegate>
 
-@property (nonatomic, readonly,  strong) UTKKeyboardView *keyboardView;
+@property (nonatomic,  strong) UTKKeyboardView *utkKeyboardView;
 @property (nonatomic, readwrite, strong) NSCharacterSet  *validCharacters;
 
 @end
 
-
 @implementation UTKEditableTextField
+
+@synthesize string = _string;
+@synthesize keyboardView = _keyboardView;
+@synthesize utkKeyboardView = _utkKeyboardView;
 
 - (id)init
 {
@@ -141,29 +507,30 @@
 
 - (void)setUpKeyboardView
 {
-    _keyboardView = [[UTKKeyboardView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-    _keyboardView.delegate = self;
+    _utkKeyboardView = [[UTKKeyboardView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+    _utkKeyboardView.delegate = self;
+
+    _keyboardView = _utkKeyboardView;
 }
 
 - (void)reset
 {
-    self.string = @"";
+    _string = @"";
 }
-
 
 #pragma mark - Keyboard methods
 
 - (BOOL)showKeyboard
 {
-    return [_keyboardView showKeyboard];
+    return [_utkKeyboardView showKeyboard];
 }
 
 - (BOOL)hideKeyboard
 {
-    return [_keyboardView hideKeyboard];
+    return [_utkKeyboardView hideKeyboard];
 }
 
-- (void)keyboardViewDidHideKeyBoard
+- (void)keyboardHidden
 {
     if ([self.delegate respondsToSelector:@selector(keyboardViewDidHide)])
     {
@@ -171,74 +538,41 @@
     }
 }
 
-
 #pragma mark - UTKKeyboardViewDelegate methods
 
-- (void)keyboardViewDidDeleteBackward
-{
-    NSString *string = self.string;
-
-    if (string.length > 0)
-    {
-        self.string = [string stringByReplacingCharactersInRange:NSMakeRange([string length] - 1, 1) withString:@""];
-
-        if ([self.delegate respondsToSelector:@selector(editableTextFieldDidChangeText:)])
-        {
-            [self.delegate editableTextFieldDidChangeText:self.string];
-        }
-    }
-}
-
-- (void)keyboardViewDidInsertText:(NSString *)text
+- (void)setString:(NSString *)text
 {
     text = [self removeNotSupportedCharactersFromString:text];
 
-    if ([self hasInputTextChanged:text])
+    /// check if we need to change anything
+    if (![text isEqualToString:_string])
     {
-        [self appendInsertedText:text];
-
-        if ([self.delegate respondsToSelector:@selector(editableTextFieldDidChangeText:)])
-        {
-            [self.delegate editableTextFieldDidChangeText:self.string];
-        }
-    }
-}
-
-- (NSString *)removeNotSupportedCharactersFromString:(NSString *)string
-{
-    string = [[string componentsSeparatedByCharactersInSet:[_validCharacters invertedSet]] componentsJoinedByString:@""];
-    string = [string stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-
-    return string;
-}
-
-- (BOOL)hasInputTextChanged:(NSString *)text
-{
-    BOOL textHasChanged = NO;
-
-    if (text.length > 0)
-    {
+        bool textHasChanged = true;
         if ([self.delegate respondsToSelector:@selector(editableTextFieldWillChangeText:)])
         {
             textHasChanged = [self.delegate editableTextFieldWillChangeText:text];
         }
+
+        if (textHasChanged)
+        {
+            _string = text;
+
+            if ([self.delegate respondsToSelector:@selector(editableTextFieldDidChangeText:)])
+            {
+                [self.delegate editableTextFieldDidChangeText:_string];
+            }
+        }
     }
-
-    return textHasChanged;
 }
 
-- (void)appendInsertedText:(NSString *)text
+- (bool)isTextValid:(NSString *)text
 {
-    self.string = [self.string stringByAppendingString:text];
+    int length = text.length;
+    text = [self removeNotSupportedCharactersFromString:text];
+    return text.length == length;
 }
-
 
 #pragma mark - getter / setter
-
--(UIView *)keyBoardView
-{
-    return _keyboardView;
-}
 
 - (void)setValidCharacters:(NSCharacterSet *)set
 {
@@ -247,9 +581,21 @@
 
 #pragma mark -
 
+- (NSString *) removeNotSupportedCharactersFromString:(NSString *)text
+{
+    /// remove invalid characters
+    if (_validCharacters != nil)
+    {
+        text = [[text componentsSeparatedByCharactersInSet:[_validCharacters invertedSet]] componentsJoinedByString:@""];
+    }
+    text = [text stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+
+    return text;
+}
+
 - (void)attachToView:(UIView *)view
 {
-    [view addSubview:self.keyBoardView];
+    [view addSubview:self.keyboardView];
 }
 
 @end

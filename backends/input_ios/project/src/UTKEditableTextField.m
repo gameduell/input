@@ -149,6 +149,8 @@ NSRange clampRange(NSRange range, int maxLength)
     }
     else
     {
+        [self resetSelection];
+
         NSMutableString* currentText = [NSMutableString stringWithString:
                                                             self.delegate.string];
 
@@ -171,6 +173,11 @@ NSRange clampRange(NSRange range, int maxLength)
                 replacementText:(NSString *)text
 {
 
+    if ([text isEqualToString:@"\n"])
+    {
+        return true;
+    }
+
     UTKIndexedRange *indexedRange = (UTKIndexedRange *)range;
     NSMutableString* currentText = [NSMutableString stringWithString:
                                                 self.delegate.string];
@@ -182,7 +189,6 @@ NSRange clampRange(NSRange range, int maxLength)
 
 - (void)deleteBackward
 {
-
     /// check if the label is empty
     if (self.delegate.string.length > 0)
     {
@@ -194,7 +200,6 @@ NSRange clampRange(NSRange range, int maxLength)
 
         [self resetSelection]; /// go to the new end of the string
     }
-
 }
 
 
@@ -221,18 +226,25 @@ NSRange clampRange(NSRange range, int maxLength)
 
 - (void)replaceRange:(UITextRange *)range withText:(NSString *)text
 {
-    NSMutableString* currentText = [NSMutableString stringWithString:
-                                                            self.delegate.string];
+    if ([text isEqualToString:@"\n"])
+    {
+        [self hideKeyboard];
+    }
+    else
+    {
+        NSMutableString* currentText = [NSMutableString stringWithString:
+                                                                self.delegate.string];
 
-    UTKIndexedRange *r = (UTKIndexedRange *)range;
+        UTKIndexedRange *r = (UTKIndexedRange *)range;
 
-    NSRange nsrange = clampRange(r.range, currentText.length);
+        NSRange nsrange = clampRange(r.range, currentText.length);
 
-    [currentText replaceCharactersInRange:nsrange withString:text];
+        [currentText replaceCharactersInRange:nsrange withString:text];
 
-    self.delegate.string = currentText;
+        self.delegate.string = currentText;
 
-    [self resetSelection];
+        [self resetSelection];
+    }
 }
 
 /// not delegate

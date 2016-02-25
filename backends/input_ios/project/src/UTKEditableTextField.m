@@ -26,6 +26,24 @@
 
 #import "input_ios/UTKEditableTextField.h"
 
+NSRange clampRange(NSRange range, int maxLength)
+{
+    int location = range.location;
+    int length = range.length;
+
+    if (location > maxLength)
+    {
+        location = maxLength;
+    }
+
+    if (location + length > maxLength)
+    {
+        length = maxLength - location;
+    }
+
+    return NSMakeRange(location, length);
+}
+
 #pragma mark - UITextPosition and UITextRange
 
 @interface UTKIndexedPosition : UITextPosition {
@@ -164,23 +182,21 @@
 
 - (void)deleteBackward
 {
-    [self resetSelection]; /// always go from the right when deleting
 
     /// check if the label is empty
     if (self.delegate.string.length > 0)
     {
+        [self resetSelection]; /// always go from the right when deleting
+
         self.delegate.string = [self.delegate.string
                             stringByReplacingCharactersInRange:NSMakeRange([self.delegate.string length] - 1, 1)
                                                     withString:@""];
+
+        [self resetSelection]; /// go to the new end of the string
     }
 
-    [self resetSelection]; /// go back to normal
 }
 
-- (UITextRange *)selectedTextRange {
-
-    return [UTKIndexedRange rangeWithNSRange:self.selectedNSRange];
-}
 
 - (void)setSelectedTextRange:(UITextRange *)range
 {
@@ -188,26 +204,9 @@
 
     NSString* currentText = self.delegate.string;
 
-    /// CLAMP
-    int location = r.range.location;
-    int length = r.range.length;
+    NSRange nsrange = clampRange(r.range, currentText.length);
 
-    if (location > currentText.length)
-    {
-        location = currentText.length;
-    }
-
-    if (location + length > currentText.length)
-    {
-        length = currentText.length - location;
-    }
-
-    self.selectedNSRange = NSMakeRange(location, length);
-}
-
-- (UITextRange *)markedTextRange {
-    /// we don't care about marking
-    return [UTKIndexedRange rangeWithNSRange:NSMakeRange(NSNotFound, 0)];
+    self.selectedNSRange = nsrange;
 }
 
 - (NSString *)textInRange:(UITextRange *)range
@@ -215,21 +214,9 @@
     UTKIndexedRange *r = (UTKIndexedRange *)range;
     NSString* currentText = self.delegate.string;
 
-    /// CLAMP
-    int location = r.range.location;
-    int length = r.range.length;
+    NSRange nsrange = clampRange(r.range, currentText.length);
 
-    if (location > currentText.length)
-    {
-        location = currentText.length;
-    }
-
-    if (location + length > currentText.length)
-    {
-        length = currentText.length - location;
-    }
-
-    return [self.delegate.string substringWithRange:NSMakeRange(location, length)];
+    return [self.delegate.string substringWithRange:nsrange];
 }
 
 - (void)replaceRange:(UITextRange *)range withText:(NSString *)text
@@ -239,13 +226,16 @@
 
     UTKIndexedRange *r = (UTKIndexedRange *)range;
 
-    [currentText replaceCharactersInRange:r.range withString:text];
+    NSRange nsrange = clampRange(r.range, currentText.length);
+
+    [currentText replaceCharactersInRange:nsrange withString:text];
 
     self.delegate.string = currentText;
 
     [self resetSelection];
 }
 
+/// not delegate
 - (void)resetSelection
 {
     self.selectedNSRange =
@@ -259,6 +249,16 @@
 }
 
 #pragma mark - UITextInput boilerplate delegate methods
+
+- (UITextRange *)selectedTextRange {
+
+    return [UTKIndexedRange rangeWithNSRange:self.selectedNSRange];
+}
+
+- (UITextRange *)markedTextRange {
+    /// we don't care about marking
+    return [UTKIndexedRange rangeWithNSRange:NSMakeRange(NSNotFound, 0)];
+}
 
 - (void)setMarkedText:(NSString *)markedText selectedRange:(NSRange)selectedRange
 {

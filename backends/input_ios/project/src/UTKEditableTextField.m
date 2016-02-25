@@ -182,7 +182,9 @@ NSRange clampRange(NSRange range, int maxLength)
     NSMutableString* currentText = [NSMutableString stringWithString:
                                                 self.delegate.string];
 
-    [currentText replaceCharactersInRange:indexedRange.range withString:text];
+    NSRange nsrange = clampRange(indexedRange.range, currentText.length);
+
+    [currentText replaceCharactersInRange:nsrange withString:text];
 
     return [self.delegate isTextValid:currentText];
 }

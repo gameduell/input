@@ -15,5 +15,8 @@ import input.TouchManager;
 import input.VirtualInput;
 import input.VirtualInputManager;
 import input.util.CharSet;
+#if html5
 import input.util.KeyboardInputProcessor;
+#end
 import input.util.VectorUtils;
+import input.util.KeyUtils;

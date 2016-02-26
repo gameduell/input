@@ -31,7 +31,7 @@ import input.KeyDefine;
 //TODO: real implementation
 extern class KeyUtils
 {
-    inline static public function getKeyDefine(keyCode: Int): KeyDefine
+    static public function getKeyDefine(keyCode: Int): KeyDefine
     {
         return null;
     }

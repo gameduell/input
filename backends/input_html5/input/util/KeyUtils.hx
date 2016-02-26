@@ -31,7 +31,7 @@ import input.KeyDefine;
 
 extern class KeyUtils
 {
-    inline static public function getKeyDefine(keyCode: Int): KeyDefine
+    static public function getKeyDefine(keyCode: Int): KeyDefine
     {
         return switch (keyCode)
         {

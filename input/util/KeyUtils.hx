@@ -37,5 +37,5 @@ extern class KeyUtils
         @param keyCode represents the key
         @return enum of the given keyCode or null if unknown
     */
-    inline static public function getKeyDefine(keyCode: Int): KeyDefine;
+    static public function getKeyDefine(keyCode: Int): KeyDefine;
 }

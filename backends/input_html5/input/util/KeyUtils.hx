@@ -29,7 +29,7 @@ package input.util;
 import js.html.KeyboardEvent;
 import input.KeyDefine;
 
-extern class KeyUtils
+class KeyUtils
 {
     static public function getKeyDefine(keyCode: Int): KeyDefine
     {

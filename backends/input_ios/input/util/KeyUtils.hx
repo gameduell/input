@@ -29,7 +29,7 @@ package input.util;
 import input.KeyDefine;
 
 //TODO: real implementation
-extern class KeyUtils
+class KeyUtils
 {
     static public function getKeyDefine(keyCode: Int): KeyDefine
     {

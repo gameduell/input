@@ -99,6 +99,9 @@ class KeyboardManager
 				keyboardEventData.capsKeyPressed = untyped CapsLock.isOn();
 				keyboardEventData.state = KeyState.Press;
 				mainKeyboard.onKeyboardEvent.dispatch(keyboardEventData);
+
+				// fixes issue on firefox
+				e.preventDefault();
             });
 
 			jquery.keyup(function(e:Dynamic)

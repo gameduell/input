@@ -139,6 +139,8 @@ class MouseManager
                     var button: MouseButton = getButton(e.button);
                     if (button != null)
                     {
+                        e.preventDefault();
+
                         anyButtonDown = true;
 
                         var coordinates: Vector2 = new Vector2();
@@ -170,6 +172,8 @@ class MouseManager
                 var button: MouseButton = getButton(e.button);
                 if (button != null && buttonDownCoordinates[button] != null)
                 {
+                    e.preventDefault();
+
                     dispatchButtonState(button, MouseButtonState.MouseButtonStateUp, false);
 
                     lastButtonUpCoordinates = buttonDownCoordinates[button];
@@ -184,6 +188,11 @@ class MouseManager
 
 			jquery.click(function(e:Dynamic)
 			{
+                if (e.target == canvas.context)
+                {
+                    e.preventDefault();
+                }
+
                 var button: MouseButton = getButton(e.button);
 
                 validButtonClick = button != null &&
@@ -199,6 +208,11 @@ class MouseManager
 
             jquery.dblclick(function(e:Dynamic)
             {
+                if (e.target == canvas.context)
+                {
+                    e.preventDefault();
+                }
+
                 var button: MouseButton = getButton(e.button);
                 if (validButtonClick && button != null)
                 {

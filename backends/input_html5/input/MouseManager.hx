@@ -48,6 +48,7 @@ class MouseManager
 	private var mouseMovementEventData: MouseMovementEventData;
 	private var jquery : JQuery;
 	private var canvas : JQuery;
+    private var focused : Bool = false;
 
 	private function new()
 	{
@@ -124,6 +125,20 @@ class MouseManager
 
         jquery.ready(function(e):Void
         {
+            jquery.focus(function(e:Dynamic)
+            {
+               if (e.target == canvas.context)
+               {
+                   focused = true;
+               }
+            });
+            jquery.blur(function(e:Dynamic)
+            {
+                if (e.target == canvas.context)
+                {
+                    focused = false;
+                }
+            });
             jquery.mousedown(function(e:Dynamic)
             {
                 if (e.target == canvas.context)
@@ -139,7 +154,10 @@ class MouseManager
                     var button: MouseButton = getButton(e.button);
                     if (button != null)
                     {
-                        e.preventDefault();
+                        if (focused)
+                        {
+                            e.preventDefault();
+                        }
 
                         anyButtonDown = true;
 

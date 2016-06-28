@@ -29,6 +29,7 @@
 #include <input_ios/NativeTouch.h>
 
 #import <objc/runtime.h>
+#import "DUELLAppDelegate.h"
 
 #include <hx/CFFI.h>
 
@@ -118,7 +119,9 @@ extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
         ++i;
     }
 
-    callHaxeOnTouchesCallback(touchCountValue, touchListValue);
+    [DUELLAppDelegate executeBlock: ^{
+        callHaxeOnTouchesCallback(touchCountValue, touchListValue);
+    }];
 }
 
 - (void) dealloc

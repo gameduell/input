@@ -109,6 +109,7 @@ void preallocateTouchBuffer(int incommingSize)
     }
 
     touchBuffer = newBuffer;
+    touchBufferSize = newSize;
 }
 
 @implementation DUELLGestureRecognizer

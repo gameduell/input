@@ -74,25 +74,6 @@ static value inputandroid_initialize(value onTouchBatchStartCallback, value onTo
 }
 DEFINE_PRIM (inputandroid_initialize, 3);
 
-
-struct AutoHaxe
-{
-	int base;
-	const char *message;
-	AutoHaxe(const char *inMessage)
-	{
-		base = 0;
-		message = inMessage;
-		gc_set_top_of_stack(&base,true);
-		//__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Enter %s %p", message, pthread_self());
-	}
-	~AutoHaxe()
-	{
-		//__android_log_print(ANDROID_LOG_VERBOSE, "OpenGL", "Leave %s %p", message, pthread_self());
-		gc_set_top_of_stack(0,true);
-	}
-};
-
 extern "C" {
 	JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_startTouchInfoBatch(JNIEnv * env, jobject obj, jint count);
 	JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_touchInfo(JNIEnv * env, jobject obj, jint identifier, jfloat x, jfloat y, jint state);
@@ -101,8 +82,6 @@ extern "C" {
 
 JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_startTouchInfoBatch(JNIEnv * env, jobject obj, jint count)
 {
-	AutoHaxe haxe("startTouchInfoBatch");
-
 	__touchCount = count;
 
 	val_call1(*__onTouchBatchStartCallback, __touchCountValue);
@@ -110,8 +89,6 @@ JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_sta
 
 JAVA_EXPORT void JNICALL Java_org_haxe_duell_input_DuellInputNativeInterface_touchInfo(JNIEnv * env, jobject obj, jint identifier, jfloat x, jfloat y, jint state)
 {
-	AutoHaxe haxe("onTouchInfo");
-
 	__touch.id = identifier;
 	__touch.state = state;
 	__touch.x = x;

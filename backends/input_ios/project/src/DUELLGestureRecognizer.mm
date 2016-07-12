@@ -38,18 +38,85 @@
 static NativeTouch *touchList = NULL;
 static int touchCount;
 
+static NativeTouch * touchBuffer = NULL;
+static int touchBufferSize = 0;
+static int touchBufferPos = 0;
+
 DEFINE_KIND(k_TouchCount)
 DEFINE_KIND(k_TouchList)
 
 static value touchCountValue;
 static value touchListValue;
 
+extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
+extern void callSetCachedVariablesCallback(value touchCount, value touchList);
+
+int convertPointerToUniqueInt(UITouch *touch)
+{
+    int hash = 16777619; ////FNV PRIME, http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-source
+    hash ^= [touch hash];
+
+    return hash;
+}
+
+void convertUITouch(UITouch *touch, NativeTouch& out, UIView* view)
+{
+    CGPoint locationInView = [touch locationInView:view];
+    out.x = locationInView.x * [[UIScreen mainScreen] scale];
+    out.y = locationInView.y * [[UIScreen mainScreen] scale];
+
+    switch(touch.phase)
+    {
+        case(UITouchPhaseBegan):
+            out.state = 0;
+            break;
+        case(UITouchPhaseMoved):
+            out.state = 1;
+            break;
+        case(UITouchPhaseStationary):
+            out.state = 2;
+            break;
+        case(UITouchPhaseEnded):
+            out.state = 3;
+            break;
+        case(UITouchPhaseCancelled):
+            out.state = 4;
+    }
+
+    out.id = convertPointerToUniqueInt(touch);
+}
+
+void initTouchBuffer()
+{
+    touchBuffer = new NativeTouch[TOUCH_LIST_POOL_SIZE];
+    touchBufferSize = TOUCH_LIST_POOL_SIZE;
+    touchBufferPos = 0;
+}
+
+void preallocateTouchBuffer(int incommingSize)
+{
+    int newSize = touchBufferPos + incommingSize;
+    if (newSize < touchBufferSize)
+    {
+        return; //enough size
+    }
+
+    newSize = (int)( newSize * 1.6);
+    NativeTouch* newBuffer = new NativeTouch[newSize];
+    for (int i = 0; i < touchBufferPos; i++)
+    {
+        newBuffer[i] = touchBuffer[i];
+    }
+
+    touchBuffer = newBuffer;
+}
+
 @implementation DUELLGestureRecognizer
 
-extern void callSetCachedVariablesCallback(value touchCount, value touchList);
 - (void) initializeTouchCapturing
 {
     touchList = new NativeTouch[TOUCH_LIST_POOL_SIZE];
+    initTouchBuffer();
 
     touchCountValue = alloc_abstract(k_TouchCount, &touchCount);
     touchListValue = alloc_abstract(k_TouchList, touchList);
@@ -77,50 +144,39 @@ extern void callSetCachedVariablesCallback(value touchCount, value touchList);
     [self dispatchTouches:touches];
 }
 
-int convertPointerToUniqueInt(UITouch *touch)
-{
-    int hash = 16777619; ////FNV PRIME, http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-source
-    hash ^= [touch hash];
-
-    return hash;
-}
-
-extern void callHaxeOnTouchesCallback(value touchCount, value touchList);
 - (void) dispatchTouches:(NSSet *)touches
 {
-    touchCount = touches.count;
+    preallocateTouchBuffer(touches.count);
 
-    int i = 0;
+    int i = touchBufferPos;
     for (UITouch *touch in touches)
     {
-        CGPoint locationInView = [touch locationInView:self.view];
-        touchList[i].x = locationInView.x * [[UIScreen mainScreen] scale];
-        touchList[i].y = locationInView.y * [[UIScreen mainScreen] scale];
-
-        switch(touch.phase)
-        {
-            case(UITouchPhaseBegan):
-                touchList[i].state = 0;
-                break;
-            case(UITouchPhaseMoved):
-                touchList[i].state = 1;
-                break;
-            case(UITouchPhaseStationary):
-                touchList[i].state = 2;
-                break;
-            case(UITouchPhaseEnded):
-                touchList[i].state = 3;
-                break;
-            case(UITouchPhaseCancelled):
-                touchList[i].state = 4;
-        }
-        touchList[i].id = convertPointerToUniqueInt(touch);
-
-        ++i;
+        convertUITouch(touch, touchBuffer[i], self.view);
+        i++;
+        touchBufferPos++;
     }
 
+
     [DUELLAppDelegate executeBlock: ^{
-        callHaxeOnTouchesCallback(touchCountValue, touchListValue);
+        if (touchBufferPos == 0)
+        {
+            return;
+        }
+
+        int callbackPos = 0;
+        while (callbackPos < touchBufferPos)
+        {
+            const int leftToCopy = touchBufferPos - callbackPos;
+            const int chunkSize = leftToCopy > TOUCH_LIST_POOL_SIZE ? TOUCH_LIST_POOL_SIZE : leftToCopy;
+
+            memcpy(touchList, touchBuffer + callbackPos, chunkSize * sizeof(NativeTouch));
+            touchCount = chunkSize;
+            callHaxeOnTouchesCallback(touchCountValue, touchListValue);
+
+            callbackPos += chunkSize;
+        }
+
+        touchBufferPos = 0;
     }];
 }
 

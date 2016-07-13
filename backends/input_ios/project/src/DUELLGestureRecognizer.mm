@@ -186,6 +186,7 @@ void preallocateTouchBuffer(int incommingSize)
 - (void) dealloc
 {
     delete[] touchList;
+    delete[] touchBuffer;
 }
 
 @end

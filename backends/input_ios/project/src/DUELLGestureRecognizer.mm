@@ -108,6 +108,8 @@ void preallocateTouchBuffer(int incommingSize)
         newBuffer[i] = touchBuffer[i];
     }
 
+    delete [] touchBuffer;
+
     touchBuffer = newBuffer;
     touchBufferSize = newSize;
 }

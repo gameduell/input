@@ -34,6 +34,7 @@
 #include <hx/CFFI.h>
 
 #define TOUCH_LIST_POOL_SIZE 40
+#define FLUSH_TOUCH_STATE 100
 
 static NativeTouch *touchList = NULL;
 static int touchCount;
@@ -147,9 +148,22 @@ void preallocateTouchBuffer(int incommingSize)
     [self dispatchTouches:touches];
 }
 
+int findSkipTouch(int begin, int end)
+{
+    for(int i = begin; i < end; i++)
+    {
+        if(touchBuffer[i].state == FLUSH_TOUCH_STATE)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 - (void) dispatchTouches:(NSSet *)touches
 {
-    preallocateTouchBuffer(touches.count);
+    preallocateTouchBuffer(touches.count + 1);
 
     int i = touchBufferPos;
     for (UITouch *touch in touches)
@@ -159,6 +173,9 @@ void preallocateTouchBuffer(int incommingSize)
         touchBufferPos++;
     }
 
+    touchBuffer[i].state = FLUSH_TOUCH_STATE;
+    touchBufferPos++;
+
 
     [DUELLAppDelegate executeBlock: ^{
         if (touchBufferPos == 0)
@@ -167,9 +184,11 @@ void preallocateTouchBuffer(int incommingSize)
         }
 
         int callbackPos = 0;
+        int nextSkipTouch = findSkipTouch(callbackPos, touchBufferPos);
         while (callbackPos < touchBufferPos)
         {
-            const int leftToCopy = touchBufferPos - callbackPos;
+            const int end = nextSkipTouch != -1 ? nextSkipTouch : touchBufferPos;
+            const int leftToCopy = end - callbackPos;
             const int chunkSize = leftToCopy > TOUCH_LIST_POOL_SIZE ? TOUCH_LIST_POOL_SIZE : leftToCopy;
 
             memcpy(touchList, touchBuffer + callbackPos, chunkSize * sizeof(NativeTouch));
@@ -177,6 +196,12 @@ void preallocateTouchBuffer(int incommingSize)
             callHaxeOnTouchesCallback(touchCountValue, touchListValue);
 
             callbackPos += chunkSize;
+
+            if(touchBuffer[callbackPos].state == FLUSH_TOUCH_STATE)
+            {
+                callbackPos++;
+                nextSkipTouch = findSkipTouch(callbackPos, touchBufferPos);
+            }
         }
 
         touchBufferPos = 0;

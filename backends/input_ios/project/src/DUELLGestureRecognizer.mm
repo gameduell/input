@@ -211,6 +211,7 @@ int findSkipTouch(int begin, int end)
 - (void) dealloc
 {
     delete[] touchList;
+    delete[] touchBuffer;
 }
 
 @end

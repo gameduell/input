@@ -49,6 +49,7 @@ class MouseManager
 	private var jquery : JQuery;
 	private var canvas : JQuery;
     private var focused : Bool = false;
+    private var zoom: Float = 1.0;
 
 	private function new()
 	{
@@ -57,6 +58,8 @@ class MouseManager
 		jquery = new JQuery(Browser.window);
 		canvas = new JQuery(HTML5AppDelegate.instance().rootView);
 
+        configureZoom();
+
 		mouseButtonEventData = new MouseButtonEventData();
 		mouseMovementEventData = new MouseMovementEventData();
 
@@ -64,6 +67,15 @@ class MouseManager
         mainMouse.inside = false;
         updateHandCursor(mainMouse);
 	}
+
+    private function configureZoom()
+    {
+        var zoom: Float = HTML5AppDelegate.instance().zoomLevel;
+        if (zoom < 1.0) zoom = 1.0;
+        this.zoom = zoom;
+
+        HTML5AppDelegate.instance().onZoom.add(onHTMLZoom);
+    }
 
 	public function getMainMouse() : Mouse
 	{
@@ -92,12 +104,21 @@ class MouseManager
 		mouseInstance.attachToNative(finishedCallback);
 	}
 
+    private function onHTMLZoom(zoom: Float): Void
+    {
+        this.zoom = zoom;
+
+        if (this.zoom < 1.0) this.zoom = 1.0;
+    }
+
     private function dispatchMouseMove(x: Float, y: Float): Void
     {
-        mouseMovementEventData.deltaX = x - mainMouse.screenPosition.x;
-        mouseMovementEventData.deltaY = y - mainMouse.screenPosition.y;
-        mainMouse.screenPosition.x = x;
-        mainMouse.screenPosition.y = y;
+        var zoomedX: Float = x * this.zoom;
+        var zoomedY: Float = y * this.zoom;
+        mouseMovementEventData.deltaX = zoomedX - mainMouse.screenPosition.x;
+        mouseMovementEventData.deltaY = zoomedY - mainMouse.screenPosition.y;
+        mainMouse.screenPosition.x = zoomedX;
+        mainMouse.screenPosition.y = zoomedY;
         mainMouse.onMovementEvent.dispatch(mouseMovementEventData);
     }
 

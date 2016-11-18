@@ -58,7 +58,10 @@ class MouseManager
 		jquery = new JQuery(Browser.window);
 		canvas = new JQuery(HTML5AppDelegate.instance().rootView);
 
-        configureZoom();
+        if (HTML5AppDelegate.instance().zoomEnabled)
+        {
+            configureZoom();
+        }
 
 		mouseButtonEventData = new MouseButtonEventData();
 		mouseMovementEventData = new MouseMovementEventData();

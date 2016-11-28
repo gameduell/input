@@ -57,6 +57,12 @@ import haxe.ds.Vector;
             set[i] = true;
         }
 
+        // numbers
+        for (i in 48...58)
+        {
+            set[i] = true;
+        }
+
         return set;
     }
 }

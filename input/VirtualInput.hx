@@ -55,12 +55,12 @@ extern class VirtualInput
     public var text(default, set): String;
 
     /**
-        The allowed char codes in this virtual input. Must be a 256-length `Vector`.
+        Sets the allowed char codes in this virtual input (must be a 256-length `Vector`), as well as the extended
+        characters available (not fitting on the standard ASCII), which should be handled natively.
      */
-    public var allowedCharCodes(null, set): Vector<Bool>;
+    public function setAllowedChars(charCodes: Vector<Bool>, allowedString: String): Void;
 
     private function show(): Bool;
     private function hide(): Bool;
     private function set_text(string: String): String;
-    private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>;
 }

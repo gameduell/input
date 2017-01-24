@@ -117,7 +117,7 @@ static value input_ios_text_hide_keyboard(value hxWrapper)
 DEFINE_PRIM (input_ios_text_hide_keyboard, 1);
 
 
-static value input_ios_text_set_allowed_char_codes(value hxWrapper, value validChars)
+static value input_ios_text_set_allowed_chars(value hxWrapper, value validChars, value hxAllowedString)
 {
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
 
@@ -136,12 +136,15 @@ static value input_ios_text_set_allowed_char_codes(value hxWrapper, value validC
         }
     }
 
+    NSString *allowedString = [NSString stringWithCString: val_get_string(hxAllowedString) encoding: NSUTF8StringEncoding];
+    [charSet addCharactersInString: allowedString];
+
     UTKEditableTextField *textField = wrapper->textField;
     [textField setValidCharacters:[charSet copy]];
 
 	return alloc_null();
 }
-DEFINE_PRIM (input_ios_text_set_allowed_char_codes, 2);
+DEFINE_PRIM (input_ios_text_set_allowed_chars, 3);
 
 
 static value input_ios_text_set_text(value hxWrapper, value hxString)

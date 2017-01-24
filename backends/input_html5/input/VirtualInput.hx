@@ -40,8 +40,7 @@ class VirtualInput
 
     public var text(default, set): String;
 
-    public var allowedCharCodes(null, set): Vector<Bool>;
-
+    private var allowedCharCodes: Vector<Bool>;
     private var inputAllowed: Bool;
 
     private function new(charCodes: Vector<Bool>)
@@ -93,10 +92,8 @@ class VirtualInput
         return value;
     }
 
-    private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>
+    public function setAllowedChars(charCodes: Vector<Bool>, _): Void
     {
-        allowedCharCodes = value.copy();
-
-        return value;
+        allowedCharCodes = charCodes.copy();
     }
 }

@@ -86,9 +86,11 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         }
     }
 
-    public void setAllowedCharCodes(boolean[] charCodes)
+    public void setAllowedChars(boolean[] charCodes, String allowedString)
     {
-        if (charCodes.length > validCharacters.length())
+        int validCharactersLength = validCharacters.length();
+
+        if (charCodes.length > validCharactersLength)
         {
             // expand the size if needed
             validCharacters = new BitSet(charCodes.length);
@@ -100,6 +102,19 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         for (int i = 0; i < charCodes.length; i++)
         {
             validCharacters.set(i, charCodes[i]);
+        }
+
+        for (int i = 0; i < allowedString.length(); i++)
+        {
+            int allowedChar = (int) allowedString.charAt(i);
+            if (allowedChar < validCharactersLength)
+            {
+                validCharacters.set((int) allowedChar, true);
+            }
+            else
+            {
+                Log.e("duell", "Invalid character to set: " + ((char) allowedChar) + " (" + allowedChar + ")");
+            }
         }
     }
 

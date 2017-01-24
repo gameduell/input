@@ -35,7 +35,7 @@ class VirtualInput
     private static var initializeNative = Lib.load("input_ios", "input_ios_text_create_textfieldwrapper", 2);
     private static var showKeyboardNative = Lib.load("input_ios", "input_ios_text_show_keyboard", 1);
     private static var hideKeyboardNative = Lib.load("input_ios", "input_ios_text_hide_keyboard", 1);
-    private static var setAllowedCharCodesNative = Lib.load("input_ios", "input_ios_text_set_allowed_char_codes", 2);
+    private static var setAllowedCharsNative = Lib.load("input_ios", "input_ios_text_set_allowed_chars", 3);
     private static var setTextNative = Lib.load("input_ios", "input_ios_text_set_text", 2);
 
     public var onInputStarted(default, null): Signal0;
@@ -43,8 +43,6 @@ class VirtualInput
     public var onTextChanged(default, null): Signal1<String>;
 
     public var text(default, set): String;
-
-    public var allowedCharCodes(never, set): Vector<Bool>;
 
     private var obj: Dynamic;
 
@@ -57,7 +55,7 @@ class VirtualInput
         obj = initializeNative(onInputEnded.dispatch, set_text);
 
         text = "";
-        allowedCharCodes = charCodes;
+        setAllowedChars(charCodes, "");
     }
 
     private function show(): Bool
@@ -94,10 +92,8 @@ class VirtualInput
         return value;
     }
 
-    private function set_allowedCharCodes(value: Vector<Bool>): Vector<Bool>
+    public function setAllowedChars(charCodes: Vector<Bool>, allowedString: String): Void
     {
-        setAllowedCharCodesNative(obj, value);
-
-        return value;
+        setAllowedCharsNative(obj, charCodes, allowedString);
     }
 }

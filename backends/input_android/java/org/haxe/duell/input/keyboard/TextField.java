@@ -86,28 +86,15 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         }
     }
 
-    public void setAllowedChars(boolean[] charCodes, String allowedString)
+    public void setAllowedChars(String allowedString)
     {
-        int validCharactersLength = validCharacters.length();
-
-        if (charCodes.length > validCharactersLength)
-        {
-            // expand the size if needed
-            validCharacters = new BitSet(charCodes.length);
-        }
-
         // reset all flags to false
         validCharacters.clear();
-
-        for (int i = 0; i < charCodes.length; i++)
-        {
-            validCharacters.set(i, charCodes[i]);
-        }
 
         for (int i = 0; i < allowedString.length(); i++)
         {
             int allowedChar = (int) allowedString.charAt(i);
-            if (allowedChar < validCharactersLength)
+            if (allowedChar < 256)
             {
                 validCharacters.set((int) allowedChar, true);
             }

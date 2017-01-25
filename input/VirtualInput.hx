@@ -26,7 +26,6 @@
 
 package input;
 
-import haxe.ds.Vector;
 import msignal.Signal;
 
 /**
@@ -34,7 +33,7 @@ import msignal.Signal;
  */
 extern class VirtualInput
 {
-    private function new(vec: Vector<Bool>);
+    private function new(chars: String);
     /**
         Callback fired when the input is allowed to be started.
      */
@@ -55,10 +54,9 @@ extern class VirtualInput
     public var text(default, set): String;
 
     /**
-        Sets the allowed char codes in this virtual input (must be a 256-length `Vector`), as well as the extended
-        characters available (not fitting on the standard ASCII), which should be handled natively.
+        Sets the allowed char codes in this virtual input which should be handled natively.
      */
-    public function setAllowedChars(charCodes: Vector<Bool>, allowedString: String): Void;
+    public function setAllowedChars(allowedString: String): Void;
 
     private function show(): Bool;
     private function hide(): Bool;

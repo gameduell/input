@@ -27,7 +27,6 @@
 package input;
 
 import input.util.KeyboardInputProcessor;
-import haxe.ds.Vector;
 import msignal.Signal;
 
 using input.util.VectorUtils;
@@ -39,18 +38,18 @@ class VirtualInput
     public var onTextChanged(default, null): Signal1<String>;
 
     public var text(default, set): String;
+    public var allowedCharCodes (default, null): Array<Bool>;
 
-    private var allowedCharCodes: Vector<Bool>;
     private var inputAllowed: Bool;
 
-    private function new(charCodes: Vector<Bool>)
+    private function new(chars: String)
     {
         onInputStarted = new Signal0();
         onInputEnded = new Signal0();
         onTextChanged = new Signal1();
 
         text = "";
-        allowedCharCodes = charCodes;
+        setAllowedChars(chars);
         inputAllowed = false;
 
         KeyboardManager.instance().getMainKeyboard().onKeyboardEvent.add(function(data: KeyboardEventData): Void
@@ -92,8 +91,13 @@ class VirtualInput
         return value;
     }
 
-    public function setAllowedChars(charCodes: Vector<Bool>, _): Void
+    public function setAllowedChars(allowedString: String): Void
     {
-        allowedCharCodes = charCodes.copy();
+        allowedCharCodes = [];
+
+        for (i in 0 ... allowedString.length)
+        {
+            allowedCharCodes[allowedString.charCodeAt(i)] = true;
+        }
     }
 }

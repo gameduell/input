@@ -26,7 +26,6 @@
 
 package input;
 
-import haxe.ds.Vector;
 import hxjni.JNI;
 import msignal.Signal;
 @:keep
@@ -39,7 +38,7 @@ class VirtualInput
     private static var setTextNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
     "setText", "(Ljava/lang/String;)V");
     private static var setAllowedCharsNative = JNI.createMemberMethod("org/haxe/duell/input/keyboard/TextField",
-    "setAllowedChars", "([ZLjava/lang/String;)V");
+    "setAllowedChars", "(Ljava/lang/String;)V");
 
     private var javaObj: Dynamic;
 
@@ -49,7 +48,7 @@ class VirtualInput
 
     public var text(default, set): String;
 
-    private function new(charCodes: Vector<Bool>)
+    private function new(chars: String)
     {
         onInputStarted = new Signal0();
         onInputEnded = new Signal0();
@@ -58,7 +57,7 @@ class VirtualInput
         javaObj = initNative(this);
 
         text = "";
-        setAllowedChars(charCodes, "");
+        setAllowedChars(chars);
     }
 
     private function show(): Bool
@@ -102,8 +101,8 @@ class VirtualInput
         return value;
     }
 
-    public function setAllowedChars(charCodes: Vector<Bool>, allowedString: String): Void
+    public function setAllowedChars(allowedString: String): Void
     {
-        setAllowedCharsNative(javaObj, charCodes, allowedString);
+        setAllowedCharsNative(javaObj, allowedString);
     }
 }

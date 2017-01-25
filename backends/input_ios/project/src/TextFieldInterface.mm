@@ -117,35 +117,19 @@ static value input_ios_text_hide_keyboard(value hxWrapper)
 DEFINE_PRIM (input_ios_text_hide_keyboard, 1);
 
 
-static value input_ios_text_set_allowed_chars(value hxWrapper, value validChars, value hxAllowedString)
+static value input_ios_text_set_allowed_chars(value hxWrapper, value hxAllowedString)
 {
     TextFieldWrapper* wrapper = ((TextFieldWrapper*) val_data(hxWrapper));
 
-    NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
-
-    int validCharSize = val_array_size(validChars);
-
-    for (int i = 0; i < validCharSize; ++i)
-    {
-        value isSet = val_array_i(validChars, i);
-        BOOL enabled = val_get_bool(isSet);
-
-        if (enabled)
-        {
-            [charSet addCharactersInRange:NSMakeRange(i, 1)];
-        }
-    }
-
     NSString *allowedString = [NSString stringWithCString: val_get_string(hxAllowedString) encoding: NSUTF8StringEncoding];
-    [charSet addCharactersInString: allowedString];
+    NSCharacterSet *charSet = [NSCharacterSet characterSetWithCharactersInString: allowedString];
 
     UTKEditableTextField *textField = wrapper->textField;
-    [textField setValidCharacters:[charSet copy]];
+    [textField setValidCharacters: charSet];
 
 	return alloc_null();
 }
-DEFINE_PRIM (input_ios_text_set_allowed_chars, 3);
-
+DEFINE_PRIM (input_ios_text_set_allowed_chars, 2);
 
 static value input_ios_text_set_text(value hxWrapper, value hxString)
 {

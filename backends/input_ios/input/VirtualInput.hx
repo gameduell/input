@@ -27,7 +27,6 @@
 package input;
 
 import cpp.Lib;
-import haxe.ds.Vector;
 import msignal.Signal;
 
 class VirtualInput
@@ -35,7 +34,7 @@ class VirtualInput
     private static var initializeNative = Lib.load("input_ios", "input_ios_text_create_textfieldwrapper", 2);
     private static var showKeyboardNative = Lib.load("input_ios", "input_ios_text_show_keyboard", 1);
     private static var hideKeyboardNative = Lib.load("input_ios", "input_ios_text_hide_keyboard", 1);
-    private static var setAllowedCharsNative = Lib.load("input_ios", "input_ios_text_set_allowed_chars", 3);
+    private static var setAllowedCharsNative = Lib.load("input_ios", "input_ios_text_set_allowed_chars", 2);
     private static var setTextNative = Lib.load("input_ios", "input_ios_text_set_text", 2);
 
     public var onInputStarted(default, null): Signal0;
@@ -46,7 +45,7 @@ class VirtualInput
 
     private var obj: Dynamic;
 
-    private function new(charCodes: Vector<Bool>)
+    private function new(chars: String)
     {
         onInputStarted = new Signal0();
         onInputEnded = new Signal0();
@@ -55,7 +54,7 @@ class VirtualInput
         obj = initializeNative(onInputEnded.dispatch, set_text);
 
         text = "";
-        setAllowedChars(charCodes, "");
+        setAllowedChars(chars);
     }
 
     private function show(): Bool
@@ -92,8 +91,8 @@ class VirtualInput
         return value;
     }
 
-    public function setAllowedChars(charCodes: Vector<Bool>, allowedString: String): Void
+    public function setAllowedChars(allowedString: String): Void
     {
-        setAllowedCharsNative(obj, charCodes, allowedString);
+        setAllowedCharsNative(obj, allowedString);
     }
 }

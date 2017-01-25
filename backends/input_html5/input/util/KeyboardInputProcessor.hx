@@ -27,7 +27,6 @@
 package input.util;
 
 import js.html.KeyboardEvent;
-import haxe.ds.Vector;
 import input.KeyboardEventData;
 
 @:final class KeyboardInputProcessor
@@ -38,7 +37,7 @@ import input.KeyboardEventData;
 
         Returns the final input to `callback`.
      */
-    public static inline function process(text: String, data: KeyboardEventData, allowedCharCodes: Vector<Bool>, callback: String -> Void): Void
+    public static inline function process(text: String, data: KeyboardEventData, allowedCharCodes: Array<Bool>, callback: String -> Void): Void
     {
         var isUpdated: Bool = false;
 

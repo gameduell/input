@@ -26,37 +26,13 @@
 
 package input.util;
 
-import haxe.ds.Vector;
-
 @:final class CharSet
 {
     /**
         Returns the english letters char code set, with [A-Za-z] and spaces enabled.
      */
-    public static function englishCharCodeSet(): Vector<Bool>
+    public static inline function englishCharCodeSet(): String
     {
-        var set: Vector<Bool> = new Vector(256);
-
-        for (i in 0...256)
-        {
-            set[i] = false;
-        }
-
-        // space
-        set[32] = true;
-
-        // uppercase chars
-        for (i in 65...91)
-        {
-            set[i] = true;
-        }
-
-        // lowercase chars
-        for (i in 97...123)
-        {
-            set[i] = true;
-        }
-
-        return set;
+        return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
     }
 }

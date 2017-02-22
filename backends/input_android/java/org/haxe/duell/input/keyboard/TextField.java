@@ -86,20 +86,22 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
         }
     }
 
-    public void setAllowedCharCodes(boolean[] charCodes)
+    public void setAllowedChars(String allowedString)
     {
-        if (charCodes.length > validCharacters.length())
-        {
-            // expand the size if needed
-            validCharacters = new BitSet(charCodes.length);
-        }
-
         // reset all flags to false
         validCharacters.clear();
 
-        for (int i = 0; i < charCodes.length; i++)
+        for (int i = 0; i < allowedString.length(); i++)
         {
-            validCharacters.set(i, charCodes[i]);
+            int allowedChar = (int) allowedString.charAt(i);
+            if (allowedChar < 256)
+            {
+                validCharacters.set((int) allowedChar, true);
+            }
+            else
+            {
+                Log.e("duell", "Invalid character to set: " + ((char) allowedChar) + " (" + allowedChar + ")");
+            }
         }
     }
 
@@ -143,46 +145,39 @@ public class TextField implements KeyboardViewDelegate, TextWatcher
             return;
         }
 
-        String string = text;
+        String nextText = text;
 
-        if (string.length() > s.length())
+        if (nextText.length() > s.length())
         {
             // keyboardViewDidDeleteBackward
-            string = s.toString();
+            nextText = s.toString();
         }
-        else if (string.length() <= s.length())
+        else if (nextText.length() <= s.length())
         {
             // keyboardViewDidInsertText
-            string = s.toString();
-            String processedText = string;
-            for (int i = 0; i < string.length(); i++)
+            nextText = s.toString();
+
+            for (int i = 0; i < count; i++)
             {
-                if (!validCharacters.get(string.charAt(i)))
+                if (!validCharacters.get(nextText.charAt(start + i)))
                 {
                     // force event to be eaten, as this method will execute again
                     eatEvent = true;
-                    processedText = processedText.replaceAll(Pattern.quote("" + string.charAt(i)), "");
-                }
 
-                if (eatEvent)
-                {
-                    // set the text back and update the keyboard view
-                    string = processedText;
-
-                    final CharSequence text = s;
-                    DuellActivity.getInstance().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            keyboardView.setText(text);
-
-                            // point the cursor to the end, its position gets messed up after replacing
-                            keyboardView.setSelection(Math.max(0, text.length() - 1));
-                        }
-                    });
+                    // if there are invalid characters revert to the current text.
+                    nextText = text;
+                    break;
                 }
             }
+
+            if (eatEvent)
+            {
+                // set the text back and update the keyboard view
+                setText(nextText);
+
+            }
         }
-        text = string;
+        text = nextText;
         dispatcher.dispatchEvent(CentralHaxeDispatcher.TEXT_CHANGED_EVENT, text);
     }
 
